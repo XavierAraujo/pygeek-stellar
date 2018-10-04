@@ -1,9 +1,12 @@
 import os.path
 import json
+import requests
 
 from stellar_base.keypair import Keypair
+from stellar_base.address import Address
+from stellar_base.exceptions import AccountNotExistError
 
-DEFAULT_CONFIG_FILE = '.config'
+DEFAULT_CONFIG_FILE = '.config.json'
 JSON_ACCOUNTS_TAG = 'accounts'
 JSON_ACCOUNT_NAME_TAG = 'account_name'
 JSON_PUBLIC_KEY_TAG = 'public_key'
@@ -19,11 +22,21 @@ current_account_public_key = None
 
 
 def main():
-    print(' ##################################')
-    print(' ##          StellarCLI          ##')
-    print(' ##################################')
+    print('##################################')
+    print('##          StellarCLI          ##')
+    print('##################################')
+    print('')
 
     init_current_account()
+    if not current_account_initialized:
+        return
+
+    global current_account_public_key
+    print('Balance: {} XLM'.format(get_balance(current_account_public_key)))
+
+    fund_testnet_account(current_account_public_key)
+
+    print('Balance: {} XLM'.format(get_balance(current_account_public_key)))
 
 
 def init_current_account():
@@ -34,7 +47,7 @@ def init_current_account():
             print_config_file_accounts(configs)
 
             n_accounts = len(configs[JSON_ACCOUNTS_TAG])
-            set_config_file_n_accounts(config_file_n_accounts)
+            set_config_file_n_accounts(n_accounts)
 
             if input('Do you want to use an existent account? (y/n): ') == 'y':
                 account_n = int(input('Which account do you want to use? (specify the index): '), base=10) - 1
@@ -45,7 +58,7 @@ def init_current_account():
                 name = configs[JSON_ACCOUNTS_TAG][account_n][JSON_ACCOUNT_NAME_TAG]
                 pub_key = configs[JSON_ACCOUNTS_TAG][account_n][JSON_PUBLIC_KEY_TAG]
                 priv_key = configs[JSON_ACCOUNTS_TAG][account_n].get(JSON_PRIVATE_KEY_TAG, None)
-                keypair = Keypair.from_seed(priv_key) if priv_key is None else None
+                keypair = Keypair.from_seed(priv_key) if priv_key is not None else None
 
                 set_current_account(name, keypair, pub_key, priv_key)
 
@@ -61,6 +74,7 @@ def init_current_account():
     if not current_account_initialized:
         return
 
+    print('')
     print('The following account will be used:')
     print('   Account Name: {}, Public Key: {}'.format(current_account_name, current_account_public_key))
 
@@ -78,6 +92,7 @@ def ask_user_for_new_account():
 
         account_name = input('What is the name of the account? If no name is specified a default one will be used: ')
         if account_name == '':
+            global config_file_n_accounts
             account_name = str('Account {}').format(config_file_n_accounts + 1)
 
         keypair = gen_keypair()
@@ -117,6 +132,19 @@ def set_current_account(name, keypair, pub_k, priv_k):
     current_account_public_key = pub_k
     current_account_initialized = True
 
+
+def get_balance(public_key):
+    address = Address(address=public_key)
+    try:
+        address.get()  # Get the latest information from Horizon
+    except AccountNotExistError:
+        print('The specified account does not exist')
+    return address.balances
+
+
+def fund_testnet_account(address):
+    r = requests.get('https://horizon-testnet.stellar.org/friendbot?addr=' + address)
+    return r.text
 
 def set_config_file_n_accounts(n_accounts):
             global config_file_n_accounts
