@@ -2,6 +2,7 @@
 from cli_session import *
 from stellar_account import *
 
+
 def main():
     print(CLI_BANNER)
 
@@ -14,7 +15,8 @@ def main():
 
     result = account.fund_using_friendbot()
     #print('Friendbot funding result: ' + result)
-    print('Balance: {} XLM'.format(account.get_balance()))
+    print('XLM Balance: {}'.format(account.get_xlm_balance()))
+    print('Magnets Balance: {}'.format(account.get_magnet_balance()))
 
 
 def print_current_session_account(cli_session):
