@@ -13,7 +13,7 @@ def main():
     account = StellarAccount(cli_session)
 
     result = account.fund_using_friendbot()
-    print('Friendbot funding result: ' + result)
+    #print('Friendbot funding result: ' + result)
     print('Balance: {} XLM'.format(account.get_balance()))
 
 
