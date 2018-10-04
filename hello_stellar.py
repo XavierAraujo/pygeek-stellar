@@ -7,16 +7,19 @@ from cli_session import *
 def main():
     print(CLI_BANNER)
 
-    session = init_cli_session()
-    if not session:
+    cli_session = init_cli_session()
+    if not cli_session:
         return
+    print_current_session_account(cli_session)
 
+    fund_testnet_account(cli_session.public_key)
+    print('Balance: {} XLM'.format(get_balance(cli_session.public_key)))
+
+
+def print_current_session_account(cli_session):
     print('')
-    print('The following account will be used:')
-    print('   Account Name: {}, Public Key: {}'.format(session.account_name, session.public_key))
-
-    fund_testnet_account(session.public_key)
-    print('Balance: {} XLM'.format(get_balance(session.public_key)))
+    print('The following account will be used: {}'.format(cli_session.to_str()))
+    print('')
 
 
 def get_balance(public_key):
