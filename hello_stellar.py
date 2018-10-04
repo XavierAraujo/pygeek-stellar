@@ -6,11 +6,7 @@ from stellar_base.keypair import Keypair
 from stellar_base.address import Address
 from stellar_base.exceptions import AccountNotExistError
 
-DEFAULT_CONFIG_FILE = '.config.json'
-JSON_ACCOUNTS_TAG = 'accounts'
-JSON_ACCOUNT_NAME_TAG = 'account_name'
-JSON_PUBLIC_KEY_TAG = 'public_key'
-JSON_PRIVATE_KEY_TAG = 'private_key'
+from constants import *
 
 config_file_n_accounts = 0
 
@@ -22,10 +18,7 @@ current_account_public_key = None
 
 
 def main():
-    print('##################################')
-    print('##          StellarCLI          ##')
-    print('##################################')
-    print('')
+    print(CLI_BANNER)
 
     init_current_account()
     if not current_account_initialized:
