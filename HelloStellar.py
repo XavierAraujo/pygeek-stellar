@@ -44,8 +44,8 @@ def init_current_account():
 
                 name = configs[JSON_ACCOUNTS_TAG][account_n][JSON_ACCOUNT_NAME_TAG]
                 pub_key = configs[JSON_ACCOUNTS_TAG][account_n][JSON_PUBLIC_KEY_TAG]
-                priv_key = configs[JSON_ACCOUNTS_TAG][account_n][JSON_PRIVATE_KEY_TAG]
-                keypair = Keypair.from_seed(priv_key)
+                priv_key = configs[JSON_ACCOUNTS_TAG][account_n].get(JSON_PRIVATE_KEY_TAG, None)
+                keypair = Keypair.from_seed(priv_key) if priv_key is None else None
 
                 set_current_account(name, keypair, pub_key, priv_key)
 
