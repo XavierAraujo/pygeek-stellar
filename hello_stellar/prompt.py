@@ -11,19 +11,39 @@ class Prompt(Cmd):
         super(Prompt, self).__init__()
         self.session = session
         self.prompt = '> '
-        self.completekey = 'tab'
+
+    def cmdloop(self, intro=None):
+        """
+        Extend the base class cmdloop method to call do_quit() when a KeyboardInterrupt
+        (ctr+c) is received
+        """
+        while True:
+            try:
+                super(Prompt, self).cmdloop()
+            except KeyboardInterrupt:
+                self.do_quit(None)
+
+    def do_current_account(self, args):
+        """
+        Prints information regarding the current Stellar account being user
+        """
+        print('{}'.format(self.session.to_str()))
 
     def do_xlm_balance(self, args):
         """
         Requests the current XLM (Stellar Lumens) balance from the Stellar Horizon server.
         """
-        print('XLM Balance: {}'.format(get_xlm_balance(self.session)))
+        balance = get_xlm_balance(self.session)
+        if balance != -1:
+            print('XLM Balance: {}'.format(balance))
 
     def do_magnet_balance(self, args):
         """
         Requests the current MAG (Magnets) balance from the Stellar Horizon server.
         """
-        print('Magnet Balance: {}'.format(get_magnet_balance(self.session)))
+        balance = get_magnet_balance(self.session)
+        if balance != -1:
+            print('Magnet Balance: {}'.format(balance))
 
     def do_request_funds(self, args):
         """
@@ -48,3 +68,4 @@ class Prompt(Cmd):
         """
         print("Quitting.")
         raise SystemExit
+

@@ -5,7 +5,7 @@ import json
 from stellar_base.keypair import Keypair
 # Local imports
 from constants import *
-import user_input
+from user_input import *
 
 
 class CliSession:
@@ -42,8 +42,8 @@ def cli_session_init():
     _print_config_file_accounts(configs)
 
     if n_accounts_found > 0:
-        if user_input.yes_or_no_input('Do you want to use an existent account?') == user_input.YES:
-            account_n = int(input('Which account do you want to use? (specify the index): '), base=10) - 1
+        if yes_or_no_input('Do you want to use an existent account?') == USER_INPUT_YES:
+            account_n = int_input('Which account do you want to use? (specify the index)') - 1
             if account_n < 0 or account_n > n_accounts_found:
                 print("Specified account index is invalid")
                 return None
@@ -54,10 +54,10 @@ def cli_session_init():
             keypair = Keypair.from_seed(priv_key) if priv_key is not None else None
             return CliSession(configs, name, keypair, pub_key, priv_key)
 
-    if user_input.yes_or_no_input('Do you wish to add a new Stellar account?') != user_input.YES:
+    if yes_or_no_input('Do you wish to add a new Stellar account?') == USER_INPUT_NO:
         return None
 
-    account_name = input('What is the name of the account? If no name is specified a default one will be used: ')
+    account_name = safe_input('What is the name of the account? (If no name is specified a default one will be used)')
     if account_name == '':
         account_name = str('Account {}').format(n_accounts_found + 1)
 
