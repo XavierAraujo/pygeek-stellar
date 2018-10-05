@@ -1,16 +1,21 @@
-from cli_session import *
+# System imports
 from prompt import Prompt
+# Local imports
+from cli_session import *
 
 
 def main():
     print(CLI_BANNER)
 
-    session = init_cli_session()
+    session = cli_session_init()
     if not session:
         return
     print_current_session_account(session)
 
-    Prompt(session).cmdloop('Starting prompt...')
+    prompt = Prompt(session)
+    prompt.do_cls(None)
+    prompt.do_help(None)
+    prompt.cmdloop()
 
 
 def print_current_session_account(session):

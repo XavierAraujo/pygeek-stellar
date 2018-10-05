@@ -1,6 +1,9 @@
+# System imports
 import os.path
 import json
+# 3rd party imports
 from stellar_base.keypair import Keypair
+# Local imports
 from constants import *
 import user_input
 
@@ -31,7 +34,7 @@ class CliSession:
         return 'Account Name: {}, Public Key: {}'.format(self.account_name, self.public_key)
 
 
-def init_cli_session():
+def cli_session_init():
 
     configs = _load_config_file_content()
 

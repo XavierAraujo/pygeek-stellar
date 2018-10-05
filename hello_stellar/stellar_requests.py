@@ -1,7 +1,10 @@
+# System imports
 import requests
 import json
+# 3rd party imports
 from stellar_base.address import Address
 from stellar_base.exceptions import AccountNotExistError
+# Local imports
 from constants import *
 
 
