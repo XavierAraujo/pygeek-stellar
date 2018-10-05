@@ -19,9 +19,7 @@ def main():
 
 
 def print_current_session_account(session):
-    print('')
-    print('The following account was chosen: {}'.format(session.to_str()))
-    print('')
+    print('\nThe following account was chosen: {}\n'.format(session.to_str()))
 
 
 if __name__ == "__main__":
