@@ -71,10 +71,26 @@ def fund_using_friendbot(cli_session):
 
 
 def send_xlm_payment(cli_session, destination_address, amount, transaction_memo=''):
+    """
+    This method is used to send a XLM transaction to a given address.
+    :param cli_session: Current CLI session.
+    :param destination_address: Destination address (equivalent to the public key).
+    :param amount: Amount of XLM to send.
+    :param transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
+    """
+
     send_payment(cli_session, destination_address, amount, 'XLM', transaction_memo)
 
 
 def send_payment(cli_session, destination_address, amount, asset_type, transaction_memo=''):
+    """
+    This method is used to send a transaction of the specified asset type to a given address.
+    :param cli_session: Current CLI session.
+    :param destination_address: Destination address (equivalent to the public key).
+    :param amount: Amount to be sent.
+    :param asset_type: Asset type to be sent.
+    :param transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
+    """
     if cli_session.private_key is None or not is_valid_stellar_private_key(cli_session.private_key):
         print('The private key was not available for this CLI session account. No transaction cannot be made '
               'without the private key.')

@@ -5,11 +5,11 @@ import shlex
 # Local imports
 from stellar_requests import *
 
-import argparse
-class Prompt(Cmd):
+
+class GeekStellarCmd(Cmd):
 
     def __init__(self, session):
-        super(Prompt, self).__init__()
+        super(GeekStellarCmd, self).__init__()
         self.session = session
         self.prompt = '> '
 
@@ -20,7 +20,7 @@ class Prompt(Cmd):
         """
         while True:
             try:
-                super(Prompt, self).cmdloop()
+                super(GeekStellarCmd, self).cmdloop()
             except KeyboardInterrupt:
                 self.do_quit(None)
 

@@ -1,5 +1,5 @@
 # System imports
-from prompt import Prompt
+from geek_stellar_cmd import GeekStellarCmd
 # Local imports
 from cli_session import *
 
@@ -11,11 +11,11 @@ def main():
     if not session:
         return
 
-    prompt = Prompt(session)
-    prompt.do_cls(None)
+    cmd = GeekStellarCmd(session)
+    cmd.do_cls(None)
     print_current_session_account(session)
-    prompt.do_help(None)
-    prompt.cmdloop()
+    cmd.do_help(None)
+    cmd.cmdloop()
 
 
 def print_current_session_account(session):
