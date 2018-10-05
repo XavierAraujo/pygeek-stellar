@@ -21,9 +21,9 @@ def yes_or_no_input(msg):
     method will not return until the user inputs a valid answer.
     """
     full_msg = '{} ({}/{})'.format(msg, USER_INPUT_YES, USER_INPUT_NO)
-    answer = safe_input(full_msg)
-    while answer.lower() not in [USER_INPUT_YES, USER_INPUT_NO]:
-        answer = safe_input(full_msg)
+    answer = safe_input(full_msg).lower()
+    while answer not in [USER_INPUT_YES, USER_INPUT_NO]:
+        answer = safe_input(full_msg).lower()
     return answer
 
 

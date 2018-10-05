@@ -4,8 +4,10 @@ import json
 # 3rd party imports
 from stellar_base.address import Address
 from stellar_base.exceptions import *
+from stellar_base.builder import Builder
 # Local imports
 from constants import *
+from utils import *
 
 
 def get_xlm_balance(cli_session):
@@ -66,3 +68,41 @@ def fund_using_friendbot(cli_session):
             format(r.status_code)
     except requests.exceptions.ConnectionError:
         return "A connection error occurred (Please check your Internet connection)"
+
+
+def send_xlm_payment(cli_session, destination_address, amount, transaction_memo=''):
+    send_payment(cli_session, destination_address, amount, 'XLM', transaction_memo)
+
+
+def send_payment(cli_session, destination_address, amount, asset_type, transaction_memo=''):
+    if cli_session.private_key is None or not is_valid_stellar_private_key(cli_session.private_key):
+        print('The private key was not available for this CLI session account. No transaction cannot be made '
+              'without the private key.')
+        return
+
+    if destination_address is None or not is_valid_stellar_public_key(destination_address):
+        print('The given destination address is invalid')
+        return
+
+    if destination_address == cli_session.public_key:
+        print('Sending payment to own address. This is not allowed')
+        return
+
+    if len(transaction_memo) > STELLAR_MEMO_TEXT_MAX_BYTES:
+        print('The maximum size of the text memo is {} bytes'.format(STELLAR_MEMO_TEXT_MAX_BYTES))
+        return
+
+    try:
+        builder = Builder(secret=cli_session.private_key)
+        builder.add_text_memo(transaction_memo)
+        builder.append_payment_op(
+            destination=destination_address,
+            amount=amount,
+            asset_code=asset_type)
+        builder.sign()
+        response = builder.submit()
+        print(response)
+    except Exception as e:
+        # Too broad exception because no specific exception is being thrown by the stellar_base package.
+        # TODO: This should be fixed in future versions
+        print("An error occurred (Please check your Internet connection)")

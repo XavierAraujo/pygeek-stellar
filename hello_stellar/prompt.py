@@ -1,10 +1,11 @@
 # System imports
 from cmd import Cmd
 import os
+import shlex
 # Local imports
 from stellar_requests import *
 
-
+import argparse
 class Prompt(Cmd):
 
     def __init__(self, session):
@@ -53,6 +54,26 @@ class Prompt(Cmd):
         """
         result = fund_using_friendbot(self.session)
         print('Friendbot funding result: ' + result)
+
+    def do_send_xlm_payment(self, args):
+        """
+        Sends a XLM payment to the given destination address
+        Usage: send_xlm_payment {destination_address} {amount} {transaction_memo: optional}
+        """
+        args = shlex.split(args)
+        if len(args) < 2:
+            print('A destination address and an amount are mandatory')
+            return
+
+        destination = args[0]
+        amount = args[1]
+        memo = '' if len(args) < 3 else args[2]  # memo is optional
+
+        if not is_float_str(amount):
+            print('The amount to transfer must but a valid value')
+            return
+
+        send_xlm_payment(self.session, destination, amount, memo)
 
     @staticmethod
     def do_cls(args):
