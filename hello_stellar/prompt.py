@@ -25,7 +25,7 @@ class Prompt(Cmd):
 
     def do_current_account(self, args):
         """
-        Prints information regarding the current Stellar account being user
+        Prints information regarding the current Stellar account being used
         """
         print('{}'.format(self.session.to_str()))
 
