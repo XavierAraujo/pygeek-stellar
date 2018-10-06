@@ -55,6 +55,26 @@ class GeekStellarCmd(Cmd):
         result = fund_using_friendbot(self.session)
         print('Friendbot funding result: ' + result)
 
+    def do_send_donation(self, args):
+        """
+        Sends a XLM donation as a form of contribution to the development of pygeek-stellar
+        Usage: send_donation {amount} {transaction_memo: optional}
+        """
+        args = shlex.split(args)
+        if len(args) < 1:
+            print('A XLM amount is mandatory')
+            return
+
+        destination = DONATION_STELLAR_ADDRESS
+        amount = args[0].replace(',','.')
+        memo = '' if len(args) < 2 else args[1]  # memo is optional
+
+        if not is_float_str(amount):
+            print('The amount to transfer must but a valid value')
+            return
+
+        send_xlm_payment(self.session, destination, amount, memo)
+
     def do_send_xlm_payment(self, args):
         """
         Sends a XLM payment to the given destination address

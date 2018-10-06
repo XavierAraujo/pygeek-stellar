@@ -29,6 +29,7 @@ class CliSession:
 
         config_file = open(file, 'w')
         config_file.write(json.dumps(self.configs))
+        print("Saved configuration file in: {}".format(file))
 
     def to_str(self):
         return 'Account Name: {}, Public Key: {}'.format(self.account_name, self.public_key)
