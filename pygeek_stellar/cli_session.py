@@ -37,9 +37,11 @@ class CliSession:
 def cli_session_init():
 
     configs = _load_config_file_content()
+    n_accounts_found = 0
 
-    n_accounts_found = len(configs[JSON_ACCOUNTS_TAG])
-    _print_config_file_accounts(configs)
+    if configs is not None:
+        n_accounts_found = len(configs[JSON_ACCOUNTS_TAG])
+        _print_config_file_accounts(configs)
 
     if n_accounts_found > 0:
         if yes_or_no_input('Do you want to use an existent account?') == USER_INPUT_YES:
