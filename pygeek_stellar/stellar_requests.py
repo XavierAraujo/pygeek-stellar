@@ -6,6 +6,7 @@ from stellar_base.exceptions import *
 from stellar_base.builder import Builder
 # Local imports
 from .utils import *
+from .user_input import *
 
 
 def get_xlm_balance(cli_session):
@@ -89,10 +90,20 @@ def send_payment(cli_session, destination_address, amount, asset_type, transacti
     :param asset_type: Asset type to be sent.
     :param transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
     """
-    if not is_valid_stellar_private_key(cli_session.private_key):
-        print('The private key was not available for this CLI session account. No transaction cannot be made '
-              'without the private key.')
-        return
+
+    private_key = cli_session.private_key
+    if private_key is None \
+            or not is_valid_stellar_private_key(private_key)\
+            or not is_priv_key_matching_pub_key(private_key, cli_session.public_key):
+        private_key = _ask_user_for_private_key(cli_session,
+                                                "Either no private key was found for this CLI session account, "
+                                                "the private key for this CLI session account is invalid or "
+                                                "the private key does match the current CLI session account public "
+                                                "key. No transaction can be made without a valid private key. Please "
+                                                "insert your private key to process the transaction")
+        if private_key is None:
+            return
+
     if not is_valid_stellar_public_key(destination_address):
         print('The given destination address is invalid')
         return
@@ -103,8 +114,12 @@ def send_payment(cli_session, destination_address, amount, asset_type, transacti
         print('The maximum size of the text memo is {} bytes'.format(STELLAR_MEMO_TEXT_MAX_BYTES))
         return
 
+    if yes_or_no_input('A payment of {} {} will be done to the following address {}. Are you sure you want to proceed?'
+                       .format(amount, asset_type, destination_address)) == USER_INPUT_NO:
+        return
+
     try:
-        builder = Builder(secret=cli_session.private_key)
+        builder = Builder(secret=private_key)
         builder.add_text_memo(transaction_memo)
         builder.append_payment_op(
             destination=destination_address,
@@ -117,3 +132,19 @@ def send_payment(cli_session, destination_address, amount, asset_type, transacti
         # Too broad exception because no specific exception is being thrown by the stellar_base package.
         # TODO: This should be fixed in future versions
         print("An error occurred (Please check your Internet connection)")
+
+
+def _ask_user_for_private_key(cli_session, msg):
+    private_key = password_input(msg)
+    if not is_valid_stellar_private_key(private_key):
+        print('The given private key is invalid')
+        return None
+
+    if not is_priv_key_matching_pub_key(private_key, cli_session.public_key):
+        print('The given private key does not match with the public key of the current CLI session')
+        return None
+
+    if yes_or_no_input('Do you want to save the private key for this CLI session account?') == USER_INPUT_YES:
+        cli_session.private_key = private_key
+
+    return private_key

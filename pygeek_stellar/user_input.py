@@ -1,3 +1,5 @@
+# System imports
+import getpass
 
 USER_INPUT_YES = 'y'
 USER_INPUT_NO = 'n'
@@ -25,6 +27,14 @@ def yes_or_no_input(msg):
     while answer not in [USER_INPUT_YES, USER_INPUT_NO]:
         answer = safe_input(full_msg).lower()
     return answer
+
+
+def password_input(msg):
+    try:
+        return getpass.getpass('{}: '.format(msg))
+    except KeyboardInterrupt:
+        print('\n\nExiting..')
+        raise SystemExit
 
 
 def safe_input(msg):
