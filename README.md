@@ -10,7 +10,15 @@
 You can install from Pypi using: 
 
 ```bash
-pip install -U pygeek-stellar
+pip3.7 install -U pygeek-stellar
+```
+
+## How to use
+
+After installing the **pygeek-stellar** package from Pypi you can simple type the following command on the terminal to start the CLI tool:
+
+```bash
+pygeek-stellar
 ```
 
 ## Warning
