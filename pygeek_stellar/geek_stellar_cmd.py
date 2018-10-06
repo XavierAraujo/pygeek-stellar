@@ -3,7 +3,7 @@ from cmd import Cmd
 import os
 import shlex
 # Local imports
-from stellar_requests import *
+from .stellar_requests import *
 
 
 class GeekStellarCmd(Cmd):

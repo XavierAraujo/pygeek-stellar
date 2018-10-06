@@ -4,8 +4,8 @@ import json
 # 3rd party imports
 from stellar_base.keypair import Keypair
 # Local imports
-from constants import *
-from user_input import *
+from .constants import *
+from .user_input import *
 
 
 class CliSession:

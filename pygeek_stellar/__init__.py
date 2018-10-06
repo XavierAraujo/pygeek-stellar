@@ -1,6 +1,6 @@
 # Local imports
-from geek_stellar_cmd import GeekStellarCmd
-from cli_session import *
+from .geek_stellar_cmd import GeekStellarCmd
+from .cli_session import *
 
 
 def main():

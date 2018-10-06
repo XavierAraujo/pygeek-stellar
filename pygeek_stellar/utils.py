@@ -2,7 +2,7 @@
 import stellar_base.utils
 from stellar_base.exceptions import *
 # Local imports
-from constants import *
+from .constants import *
 
 
 def is_float_str(string):
