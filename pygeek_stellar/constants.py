@@ -1,9 +1,6 @@
 
 
-CLI_BANNER = '\n' \
-             '##################################\n' \
-             '##          StellarCLI          ##\n' \
-             '##################################\n' \
+CLI_BANNER_TEXT = 'PYGEEK-STELLAR'
 
 # Config file related constants
 DEFAULT_CONFIG_FILE = '.config.json'

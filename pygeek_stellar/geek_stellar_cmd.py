@@ -66,7 +66,7 @@ class GeekStellarCmd(Cmd):
             return
 
         destination = args[0]
-        amount = args[1]
+        amount = args[1].replace(',','.')
         memo = '' if len(args) < 3 else args[2]  # memo is optional
 
         if not is_float_str(amount):

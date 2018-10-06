@@ -1,12 +1,10 @@
 # System imports
 import requests
-import json
 # 3rd party imports
 from stellar_base.address import Address
 from stellar_base.exceptions import *
 from stellar_base.builder import Builder
 # Local imports
-from constants import *
 from utils import *
 
 
@@ -91,20 +89,17 @@ def send_payment(cli_session, destination_address, amount, asset_type, transacti
     :param asset_type: Asset type to be sent.
     :param transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
     """
-    if cli_session.private_key is None or not is_valid_stellar_private_key(cli_session.private_key):
+    if not is_valid_stellar_private_key(cli_session.private_key):
         print('The private key was not available for this CLI session account. No transaction cannot be made '
               'without the private key.')
         return
-
-    if destination_address is None or not is_valid_stellar_public_key(destination_address):
+    if not is_valid_stellar_public_key(destination_address):
         print('The given destination address is invalid')
         return
-
     if destination_address == cli_session.public_key:
         print('Sending payment to own address. This is not allowed')
         return
-
-    if len(transaction_memo) > STELLAR_MEMO_TEXT_MAX_BYTES:
+    if not is_valid_stellar_transaction_text_memo(transaction_memo):
         print('The maximum size of the text memo is {} bytes'.format(STELLAR_MEMO_TEXT_MAX_BYTES))
         return
 

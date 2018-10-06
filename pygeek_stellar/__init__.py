@@ -1,11 +1,10 @@
-# System imports
-from geek_stellar_cmd import GeekStellarCmd
 # Local imports
+from geek_stellar_cmd import GeekStellarCmd
 from cli_session import *
 
 
 def main():
-    print(CLI_BANNER)
+    print_banner()
 
     session = cli_session_init()
     if not session:
@@ -16,6 +15,16 @@ def main():
     print_current_session_account(session)
     cmd.do_help(None)
     cmd.cmdloop()
+
+
+def print_banner():
+    ch = '#'
+    length = len(CLI_BANNER_TEXT) + 8
+    spaced_text = ' %s ' % CLI_BANNER_TEXT
+    banner = spaced_text.center(length, ch)
+    print('\n' + ch * length)
+    print(banner)
+    print(ch * length + '\n')
 
 
 def print_current_session_account(session):
