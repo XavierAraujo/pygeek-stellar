@@ -8,4 +8,7 @@ setup(name='pygeek-stellar',
       author_email='xavier.araujo92@gmail.com',
       license='MIT',
       packages=['pygeek_stellar'],
+      install_requires=[
+          'stellar-base',
+      ],
       zip_safe=False)
