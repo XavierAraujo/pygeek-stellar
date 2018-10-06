@@ -5,7 +5,7 @@ from stellar_base.address import Address
 from stellar_base.exceptions import *
 from stellar_base.builder import Builder
 # Local imports
-from .utils import *
+from .stellar_utils import *
 from .user_input import *
 
 

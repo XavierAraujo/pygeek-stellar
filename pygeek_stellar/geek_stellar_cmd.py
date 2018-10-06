@@ -4,7 +4,7 @@ import os
 import shlex
 # Local imports
 from .stellar_requests import *
-
+from .utils import *
 
 class GeekStellarCmd(Cmd):
 
