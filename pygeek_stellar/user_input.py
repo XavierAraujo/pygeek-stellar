@@ -14,7 +14,7 @@ def int_input(msg):
         return int(safe_input(msg), base=10)
     except ValueError:
         print('Input must be a valid integer value')
-        int_input(msg)
+        int_input(msg)  # call this method again to fetch a valid integer value
 
 
 def yes_or_no_input(msg):
