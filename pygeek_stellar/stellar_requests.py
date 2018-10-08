@@ -1,13 +1,18 @@
 # System imports
 import requests
+import base64
 # 3rd party imports
 from stellar_base.address import Address
 from stellar_base.exceptions import *
 from stellar_base.builder import Builder
+from stellar_base.stellarxdr import Xdr
+from stellar_base.stellarxdr import StellarXDR_const
+from xdrlib import Error as XDRError
 # Local imports
 from .utils.stellar import *
 from .user_input import *
 from .constants import *
+from .utils.generic import *
 
 
 def get_account_balances(cli_session):
@@ -25,7 +30,7 @@ def get_account_balances(cli_session):
 
     balances = []
     for balance in address.balances:
-        asset_description = 'XLM' if balance.get('asset_type') == 'native' else balance.get('asset_code')
+        asset_description = balance.get('asset_code', 'XLM')
         asset_balance = float(balance.get('balance'))
         balances.append([asset_description, asset_balance])
     return balances
@@ -40,7 +45,7 @@ def fund_using_friendbot(cli_session):
     """
     try:
         r = requests.get('{}/friendbot?addr={}'.format(STELLAR_HORIZON_TESTNET_URL, cli_session.public_key))
-        return 'Successful transaction request' if 200 <= r.status_code <= 299 \
+        return 'Successful transaction request' if is_sucessful_http_status_code(r.status_code) \
             else 'Failed transaction request (Maybe this account was already funded by Friendbot). Status code {}'.\
             format(r.status_code)
     except requests.exceptions.ConnectionError:
@@ -56,7 +61,8 @@ def send_xlm_payment(cli_session, destination_address, amount, transaction_memo=
     :param transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
     """
 
-    send_payment(cli_session, destination_address, amount, 'XLM', transaction_memo)
+    token_issuer = None
+    send_payment(cli_session, destination_address, amount, 'XLM', token_issuer, transaction_memo)
 
 
 def send_token_payment(cli_session, destination_address, token_name, amount, token_issuer, transaction_memo=''):
@@ -105,21 +111,15 @@ def send_payment(cli_session, destination_address, amount, asset_type, token_iss
                        .format(amount, asset_type, destination_address)) == USER_INPUT_NO:
         return
 
-    try:
-        builder = Builder(secret=private_key)
-        builder.add_text_memo(transaction_memo)
-        builder.append_payment_op(
-            destination=destination_address,
-            amount=amount,
-            asset_issuer=token_issuer,
-            asset_code=asset_type)
-        builder.sign()
-        response = builder.submit()
-        print(response)
-    except Exception as e:
-        # Too broad exception because no specific exception is being thrown by the stellar_base package.
-        # TODO: This should be fixed in future versions
-        print("An error occurred (Please check your Internet connection)")
+    builder = Builder(secret=private_key)
+    builder.add_text_memo(transaction_memo)
+    builder.append_payment_op(
+        destination=destination_address,
+        amount=amount,
+        asset_issuer=token_issuer,
+        asset_code=asset_type)
+    response = _submit_operation(builder)
+    process_server_payment_response(response)
 
 
 def establish_trustline(cli_session, destination_address, token_code, token_limit, transaction_memo=''):
@@ -137,17 +137,69 @@ def establish_trustline(cli_session, destination_address, token_code, token_limi
         print('The maximum size of the text memo is {} bytes'.format(STELLAR_MEMO_TEXT_MAX_BYTES))
         return
 
+    builder = Builder(secret=private_key)
+    builder.add_text_memo(transaction_memo)
+    builder.append_trust_op(
+        destination=destination_address,
+        code=token_code,
+        limit=token_limit)
+    response = _submit_operation(builder)
+    process_server_payment_response(response)
+
+
+def _submit_operation(builder):
+    builder.sign()
     try:
-        builder = Builder(secret=private_key)
-        builder.add_text_memo(transaction_memo)
-        builder.append_trust_op(destination_address, token_code, token_limit)
-        builder.sign()
-        response = builder.submit()
-        print(response)
+        return builder.submit()
     except Exception as e:
         # Too broad exception because no specific exception is being thrown by the stellar_base package.
         # TODO: This should be fixed in future versions
         print("An error occurred (Please check your Internet connection)")
+        return None
+
+
+def process_server_payment_response(response):
+    if response is None:
+        return
+
+    if response.get('status') is not None:
+        print("Server response status code: {}".format(response.get('status')))
+    if response.get('title') is not None:
+        print("Server response title: {}".format(response.get('title')))
+    if response.get('detail') is not None:
+        print("Server response detail: {}".format(response.get('detail')))
+    if 'extras' in response and 'result_xdr' in response['extras']:
+        unpacked_tx_result = decode_xdr_transaction_result(response['extras']['result_xdr'])
+        print_xdr_transaction_result(unpacked_tx_result)
+    if 'result_xdr' in response:
+        unpacked_tx_result = decode_xdr_transaction_result(response.get('result_xdr'))
+        print_xdr_transaction_result(unpacked_tx_result)
+
+
+def decode_xdr_transaction_result(xdr_string):
+    try:
+        xdr_bytes = base64.b64decode(xdr_string)
+        return Xdr.StellarXDRUnpacker(xdr_bytes).unpack_TransactionResult()
+    except TypeError or ValueError:
+        print("Error during base64 decoding")
+        return None
+    except XDRError:
+        print("Error during XDR unpacking procedure")
+        return None
+
+
+def print_xdr_transaction_result(unpacked_tx_result):
+        payment_result = unpacked_tx_result.result.results[0].paymentResult
+        print("Server response operation result: {}".format(
+            'Succeeded' if unpacked_tx_result.result.code == StellarXDR_const.txSUCCESS else 'Failed'
+        ))
+        print('Server response payment result: {} (Code: {})'.format(str(payment_result), payment_result.code))
+
+
+def is_successful_server_response_status_code(response):
+    if response is None or 'status' not in response or not is_sucessful_http_status_code(response.get('status')):
+        return False
+    return True
 
 
 def _fetch_valid_private_key(cli_session):
