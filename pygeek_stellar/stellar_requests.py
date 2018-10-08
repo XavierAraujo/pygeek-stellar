@@ -4,13 +4,10 @@ import requests
 from stellar_base.address import Address
 from stellar_base.exceptions import *
 from stellar_base.builder import Builder
-from stellar_base.asset import Asset
-from stellar_base.operation import ChangeTrust
-from stellar_base.transaction import Transaction
-from stellar_base.transaction_envelope import TransactionEnvelope
 # Local imports
-from .stellar_utils import *
+from .utils.stellar import *
 from .user_input import *
+from .constants import *
 
 
 def get_xlm_balance(cli_session):

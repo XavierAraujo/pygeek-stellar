@@ -1,3 +1,4 @@
+# System imports
 from pathlib import Path
 
 CLI_BANNER_TEXT = 'PYGEEK-STELLAR'
@@ -12,5 +13,4 @@ JSON_PRIVATE_KEY_TAG = 'private_key'
 # Stellar related constants
 STELLAR_HORIZON_TESTNET_URL = 'https://horizon-testnet.stellar.org'
 STELLAR_ASSET_TYPE_XLM = 'native'
-STELLAR_MEMO_TEXT_MAX_BYTES = 28
 STELLAR_DONATION_ADDRESS = 'GBLHVU7EJMSUW72PINTRBRIHT55ZQ7HXFAXELG2JG53X4VAZSHZKLEY6'

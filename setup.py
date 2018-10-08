@@ -7,10 +7,11 @@ setup(name='pygeek-stellar',
       author='XavierAraujo',
       author_email='xavier.araujo92@gmail.com',
       license='MIT',
-      packages=['pygeek_stellar'],
+      packages=['pygeek_stellar', 'pygeek_stellar.utils'],
       install_requires=[
             'stellar-base',
-            'cryptography'
+            'cryptography',
+            'requests'
       ],
       scripts=['bin/pygeek-stellar'],
       python_requires='>=3.7',

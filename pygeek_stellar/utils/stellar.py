@@ -2,8 +2,8 @@
 import stellar_base.utils
 from stellar_base.exceptions import *
 from stellar_base.keypair import Keypair
-# Local imports
-from .constants import *
+
+STELLAR_MEMO_TEXT_MAX_BYTES = 28
 
 
 def is_valid_stellar_public_key(key):

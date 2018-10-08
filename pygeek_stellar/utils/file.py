@@ -1,7 +1,7 @@
 # System imports
 import os
 # Local imports
-from .cryptography_utils import *
+from .cryptography import *
 
 FILE_MODE_READ = 'r'
 FILE_MODE_READ_BINARY = 'rb'

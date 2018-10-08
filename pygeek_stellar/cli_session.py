@@ -1,13 +1,10 @@
-# System imports
-import os.path
-import json
 # 3rd party imports
 from stellar_base.keypair import Keypair
 # Local imports
 from .constants import *
 from .user_input import *
-from .file_utils import *
-from .utils import *
+from .utils.file import *
+from .utils.generic import *
 
 
 class CliSession:
