@@ -6,6 +6,8 @@ from stellar_base.keypair import Keypair
 # Local imports
 from .constants import *
 from .user_input import *
+from .file_utils import *
+from .utils import *
 
 
 class CliSession:
@@ -37,7 +39,7 @@ class CliSession:
 
 def cli_session_init():
 
-    configs = _load_config_file_content()
+    configs = decode_json_content(load_file(DEFAULT_CONFIG_FILE))
     n_accounts_found = 0
 
     if configs is not None:
@@ -77,10 +79,3 @@ def _print_config_file_accounts(configs_json):
         print('[{}] Account Name: {}, Public Key: {}'.format(
             i+1, account[JSON_ACCOUNT_NAME_TAG], account[JSON_PUBLIC_KEY_TAG]))
     print('')
-
-
-def _load_config_file_content():
-    if os.path.isfile(DEFAULT_CONFIG_FILE):
-        with open(DEFAULT_CONFIG_FILE, 'r') as config_file:
-            return json.load(config_file)
-    return None

@@ -9,8 +9,9 @@ setup(name='pygeek-stellar',
       license='MIT',
       packages=['pygeek_stellar'],
       install_requires=[
-          'stellar-base',
+            'stellar-base',
+            'cryptography'
       ],
-	  scripts=['bin/pygeek-stellar'],
+      scripts=['bin/pygeek-stellar'],
       python_requires='>=3.7',
       zip_safe=False)
