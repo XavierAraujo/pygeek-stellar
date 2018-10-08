@@ -118,7 +118,7 @@ def send_payment(cli_session, destination_address, amount, asset_type, token_iss
         amount=amount,
         asset_issuer=token_issuer,
         asset_code=asset_type)
-    response = _submit_operation(builder)
+    response = _sign_and_submit_operation(builder)
     process_server_payment_response(response)
 
 
@@ -143,11 +143,11 @@ def establish_trustline(cli_session, destination_address, token_code, token_limi
         destination=destination_address,
         code=token_code,
         limit=token_limit)
-    response = _submit_operation(builder)
+    response = _sign_and_submit_operation(builder)
     process_server_payment_response(response)
 
 
-def _submit_operation(builder):
+def _sign_and_submit_operation(builder):
     builder.sign()
     try:
         return builder.submit()
@@ -191,15 +191,8 @@ def decode_xdr_transaction_result(xdr_string):
 def print_xdr_transaction_result(unpacked_tx_result):
         payment_result = unpacked_tx_result.result.results[0].paymentResult
         print("Server response operation result: {}".format(
-            'Succeeded' if unpacked_tx_result.result.code == StellarXDR_const.txSUCCESS else 'Failed'
-        ))
+            'Succeeded' if unpacked_tx_result.result.code == StellarXDR_const.txSUCCESS else 'Failed'))
         print('Server response payment result: {} (Code: {})'.format(str(payment_result), payment_result.code))
-
-
-def is_successful_server_response_status_code(response):
-    if response is None or 'status' not in response or not is_sucessful_http_status_code(response.get('status')):
-        return False
-    return True
 
 
 def _fetch_valid_private_key(cli_session):
