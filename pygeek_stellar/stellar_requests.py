@@ -10,44 +10,25 @@ from .user_input import *
 from .constants import *
 
 
-def get_xlm_balance(cli_session):
+def get_account_balances(cli_session):
     """
-    This method is used to fetch the XLM balance of the current CLI session account
+    This method is used to fetch all the balances from the current CLI session account
     from the Stellar network.
     :param cli_session: Current CLI session.
-    :return: Returns the XLM balance.
-    """
-    return _get_asset_balance(cli_session, STELLAR_ASSET_TYPE_XLM)
-
-
-def get_token_balance(cli_session, token_name):
-    """
-    This method is used to fetch the balance of the specified token of the current CLI
-    session account from the Stellar network.
-    :param cli_session: Current CLI session.
-    :param token_name: Name of the token.
-    :return: Returns the balance of the specified token.
-    """
-    return _get_asset_balance(cli_session, token_name)
-
-
-def _get_asset_balance(cli_session, asset):
-    """
-    This method is used to fetch the balance from a given asset of the current CLI
-    session account from the Stellar network.
-    :param cli_session: Current CLI session.
-    :param asset: Asset to be evaluated.
-    :return: Returns the balance of the given asset.
+    :return: Returns a list containing the account balances structured in the following manner
+    : [['asset1', amount], ['asset2', amount]]
     """
     address = _get_address_from_public_key(cli_session.public_key)
 
     if address is None:
-        return -1
+        return None
 
+    balances = []
     for balance in address.balances:
-        if balance.get('asset_type') == asset:
-            return float(balance.get('balance'))
-    return 0
+        asset_description = 'XLM' if balance.get('asset_type') == 'native' else balance.get('asset_code')
+        asset_balance = float(balance.get('balance'))
+        balances.append([asset_description, asset_balance])
+    return balances
 
 
 def fund_using_friendbot(cli_session):

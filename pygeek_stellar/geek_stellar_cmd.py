@@ -31,27 +31,16 @@ class GeekStellarCmd(Cmd):
         """
         print('{}'.format(self.session.to_str()))
 
-    def do_xlm_balance(self, args):
+    def do_get_account_balances(self, args):
         """
         Requests the current XLM (Stellar Lumens) balance from the Stellar Horizon server.
         """
-        balance = get_xlm_balance(self.session)
-        if balance != -1:
-            print('XLM Balance: {}'.format(balance))
-
-    def do_token_balance(self, args):
-        """
-        Requests the current balance of a given token from the Stellar Horizon server.
-        """
-        args = shlex.split(args)
-        if len(args) < 1:
-            print('A token name is mandatory')
+        balances = get_account_balances(self.session)
+        if balances is None:
+            print('No balances could be retrieved')
             return
-
-        token_name = args[0]
-        balance = get_token_balance(self.session, token_name)
-        if balance != -1:
-            print('Token Balance: {}'.format(balance))
+        for balance in balances:
+            print('  {}: {}'.format(balance[0], balance[1]))
 
     def do_request_funds(self, args):
         """
