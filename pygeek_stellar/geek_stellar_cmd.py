@@ -71,6 +71,26 @@ class GeekStellarCmd(Cmd):
 
         send_xlm_payment(self.session, destination, amount, memo)
 
+    def do_create_new_account(self, args):
+        """
+        Creates a new Stellar address by transferring a given amount of XLM to that address.
+        Usage: create_new_account {account_address} {amount} {transaction_memo: optional}
+        """
+        args = shlex.split(args)
+        if len(args) < 2:
+            print('An account address and a transfer amount are mandatory')
+            return
+
+        address = args[0]
+        amount = args[1].replace(',','.')
+        memo = '' if len(args) < 3 else args[2]  # memo is optional
+
+        if not is_float_str(amount):
+            print('The transfer amount to transfer must but a valid value')
+            return
+        
+        create_new_account(self.session, address, amount, memo)
+        
     def do_send_token_payment(self, args):
         """
         Sends a XLM payment to the given destination address
@@ -78,7 +98,7 @@ class GeekStellarCmd(Cmd):
         """
         args = shlex.split(args)
         if len(args) < 3:
-            print('A destination address, token name and an transfer amount are mandatory')
+            print('A destination address, token name and a transfer amount are mandatory')
             return
 
         destination = args[0]
@@ -100,7 +120,7 @@ class GeekStellarCmd(Cmd):
         """
         args = shlex.split(args)
         if len(args) < 2:
-            print('A destination address and an transfer amount are mandatory')
+            print('A destination address and a transfer amount are mandatory')
             return
 
         destination = args[0]

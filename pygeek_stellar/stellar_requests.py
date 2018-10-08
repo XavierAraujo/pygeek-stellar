@@ -15,6 +15,38 @@ from .constants import *
 from .utils.generic import *
 
 
+def create_new_account(cli_session, account_address, amount, transaction_memo=''):
+    """
+    This method creates a new Stellar account. For this to be done a certain amount
+    of XLM must be transferred the Stellar account.
+    :param cli_session: Current CLI session.
+    :param account_address: Address of the new account.
+    :param amount: XLM amount to transfer to the new account.
+    :param transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
+    """
+    private_key = _fetch_valid_private_key(cli_session)
+    if private_key is None:
+        return
+
+    if not is_valid_stellar_public_key(account_address):
+        print('The given account address is invalid')
+        return
+
+    if yes_or_no_input('To create the new account, a payment of {} XLM will be done '
+                       'to the following address {}. Are you sure you want to proceed?'
+                       .format(amount, account_address)) == USER_INPUT_NO:
+        return
+
+    builder = Builder(secret=private_key)
+    builder.add_text_memo(transaction_memo)
+    builder.append_create_account_op(
+        destination=account_address,
+        starting_balance=amount,
+        source=cli_session.public_key)
+    response = _sign_and_submit_operation(builder)
+    #process_server_payment_response(response) # TODO: Parse response
+
+
 def get_account_balances(cli_session):
     """
     This method is used to fetch all the balances from the current CLI session account
