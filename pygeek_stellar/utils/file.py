@@ -18,8 +18,14 @@ def write_file(filename, content, write_as_binary=False):
     This parameter is optional and by default files are not written is binary form.
     """
     opening_mode = FILE_MODE_WRITE if not write_as_binary else FILE_MODE_WRITE_BINARY
-    file = open(filename, opening_mode)
-    file.write(content)
+    try:
+        file = open(filename, opening_mode)
+        file.write(content)
+        file.close()
+        return True
+    except (OSError, IOError):
+        print("There was a problem opening/writing the file: {}".format(filename))
+        return False
 
 
 def load_file(filename, read_as_binary=False):
@@ -31,8 +37,12 @@ def load_file(filename, read_as_binary=False):
     """
     if os.path.isfile(filename):
         opening_mode = FILE_MODE_READ if not read_as_binary else FILE_MODE_READ_BINARY
-        with open(filename, opening_mode) as file_content:
-            return file_content.read()
+        try:
+            with open(filename, opening_mode) as file_content:
+                return file_content.read()
+        except (OSError, IOError):
+            print("There was a problem opening/reading the file: {}".format(filename))
+            return None
     return None
 
 
@@ -48,7 +58,7 @@ def write_encrypted_file(filename, content, password):
         return None
 
     encrypted_content = encrypt(content.encode(), password)
-    write_file(filename, encrypted_content, write_as_binary=True)  # Encrypted files are stored as binary
+    return write_file(filename, encrypted_content, write_as_binary=True)  # Encrypted files are stored as binary
 
 
 def load_encrypted_file(filename, password, read_as_binary=False):
@@ -64,9 +74,13 @@ def load_encrypted_file(filename, password, read_as_binary=False):
         return None
 
     file_content = load_file(filename, read_as_binary=True)  # Encrypted files are stored as binary
+    if file_content is None:
+        return None
+
     decrypted_content = decrypt(file_content, password)
     if decrypted_content is None:
         return None
+
     return decrypted_content if read_as_binary else decrypted_content.decode()
 
 
