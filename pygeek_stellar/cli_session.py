@@ -9,10 +9,9 @@ from .utils.generic import *
 
 class CliSession:
 
-    def __init__(self, configs, account_name, keypair, public_key, private_key):
+    def __init__(self, configs, account_name, public_key, private_key):
         self.configs = configs
         self.account_name: str = account_name
-        self.keypair: Keypair = keypair
         self.public_key: str = public_key
         self.private_key: str = private_key
 
@@ -27,17 +26,20 @@ class CliSession:
             JSON_PRIVATE_KEY_TAG: self.private_key})
 
         config_file = open(file, 'w')
-        config_file.write(json.dumps(self.configs))
-        print("Saved configuration file in: {}".format(file))
+        succeeded = config_file.write(json.dumps(self.configs))
+        if succeeded:
+            print("Saved configuration file in: {}".format(file))
 
     def to_str(self):
         return 'Account Name: {}, Public Key: {}'.format(self.account_name, self.public_key)
 
 
 def cli_session_init():
-
-    configs = decode_json_content(load_file(DEFAULT_CONFIG_FILE))
     n_accounts_found = 0
+    configs = None
+    file_content = load_file(DEFAULT_CONFIG_FILE)
+    if file_content is not None:
+        configs = decode_json_content(file_content)
 
     if configs is not None:
         n_accounts_found = len(configs[JSON_ACCOUNTS_TAG])
@@ -53,8 +55,7 @@ def cli_session_init():
             name = configs[JSON_ACCOUNTS_TAG][account_n][JSON_ACCOUNT_NAME_TAG]
             pub_key = configs[JSON_ACCOUNTS_TAG][account_n][JSON_PUBLIC_KEY_TAG]
             priv_key = configs[JSON_ACCOUNTS_TAG][account_n].get(JSON_PRIVATE_KEY_TAG, None)
-            keypair = Keypair.from_seed(priv_key) if priv_key is not None else None
-            return CliSession(configs, name, keypair, pub_key, priv_key)
+            return CliSession(configs, name, pub_key, priv_key)
 
     if yes_or_no_input('Do you wish to add a new Stellar account?') == USER_INPUT_NO:
         return None
@@ -64,7 +65,7 @@ def cli_session_init():
         account_name = str('Account {}').format(n_accounts_found + 1)
 
     keypair = Keypair.random()
-    cli_session = CliSession(configs, account_name, keypair, keypair.address().decode(), keypair.seed().decode())
+    cli_session = CliSession(configs, account_name, keypair.address().decode(), keypair.seed().decode())
     cli_session.update_config_file(DEFAULT_CONFIG_FILE)
     return cli_session
 
