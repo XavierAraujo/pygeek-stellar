@@ -111,7 +111,7 @@ class GeekStellarCmd(Cmd):
             return
 
         # TODO: Check who should be the issuer! Should it be a input from the user?
-        send_token_payment(self.session, destination, token_name, amount, self.session.public_key, memo)
+        send_payment(self.session, destination, token_name, amount, self.session.public_key, memo)
 
     def do_send_xlm_payment(self, args):
         """
@@ -131,7 +131,7 @@ class GeekStellarCmd(Cmd):
             print('The transfer amount to transfer must but a valid value')
             return
 
-        send_xlm_payment(self.session, destination, amount, memo)
+        send_payment(self.cli_session, destination, 'XLM', amount, None, memo)
 
     def do_establish_trustline(self, args):
         """

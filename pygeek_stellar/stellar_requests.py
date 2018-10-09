@@ -84,34 +84,7 @@ def fund_using_friendbot(cli_session):
         return "A connection error occurred (Please check your Internet connection)"
 
 
-def send_xlm_payment(cli_session, destination_address, amount, transaction_memo=''):
-    """
-    This method is used to send a XLM transaction to a given address.
-    :param cli_session: Current CLI session.
-    :param destination_address: Destination address (equivalent to the public key).
-    :param amount: Amount of XLM to send.
-    :param transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
-    """
-
-    token_issuer = None
-    send_payment(cli_session, destination_address, amount, 'XLM', token_issuer, transaction_memo)
-
-
-def send_token_payment(cli_session, destination_address, token_name, amount, token_issuer, transaction_memo=''):
-    """
-    This method is used to send a transaction of the specified token to a given address.
-    :param cli_session: Current CLI session.
-    :param destination_address: Destination address (equivalent to the public key).
-    :param token_name: Name of the token.
-    :param amount: Amount of tokens to send.
-    :param token_issuer: Issuer of the token to be sent.
-    :param transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
-    """
-
-    send_payment(cli_session, destination_address, amount, token_name, token_issuer, transaction_memo)
-
-
-def send_payment(cli_session, destination_address, amount, asset_type, token_issuer=None, transaction_memo=''):
+def send_payment(cli_session, destination_address, asset_type, amount, token_issuer=None, transaction_memo=''):
     """
     This method is used to send a transaction of the specified asset type to a given address.
     :param cli_session: Current CLI session.
