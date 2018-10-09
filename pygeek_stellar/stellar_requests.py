@@ -28,7 +28,7 @@ def create_new_account(cli_session, account_address, amount, transaction_memo=''
     if private_key is None:
         return
 
-    if not is_valid_stellar_public_key(account_address):
+    if not is_valid_public_key(account_address):
         print('The given account address is invalid')
         return
 
@@ -53,7 +53,7 @@ def get_account_balances(cli_session):
     from the Stellar network.
     :param cli_session: Current CLI session.
     :return: Returns a list containing the account balances structured in the following manner
-    : [['asset1', amount], ['asset2', amount]]
+    : [['token1', amount], ['token2', amount]]
     """
     address = _get_address_from_public_key(cli_session.public_key)
 
@@ -62,9 +62,9 @@ def get_account_balances(cli_session):
 
     balances = []
     for balance in address.balances:
-        asset_description = balance.get('asset_code', 'XLM')
-        asset_balance = float(balance.get('balance'))
-        balances.append([asset_description, asset_balance])
+        token_code = balance.get('asset_code', 'XLM')
+        token_balance = float(balance.get('balance'))
+        balances.append([token_code, token_balance])
     return balances
 
 
@@ -84,13 +84,13 @@ def fund_using_friendbot(cli_session):
         return "A connection error occurred (Please check your Internet connection)"
 
 
-def send_payment(cli_session, destination_address, asset_type, amount, token_issuer=None, transaction_memo=''):
+def send_payment(cli_session, destination_address, token_code, amount, token_issuer=None, transaction_memo=''):
     """
-    This method is used to send a transaction of the specified asset type to a given address.
+    This method is used to send a transaction of the specified token to a given address.
     :param cli_session: Current CLI session.
     :param destination_address: Destination address (equivalent to the public key).
     :param amount: Amount to be sent.
-    :param asset_type: Asset type to be sent.
+    :param token_code: Code of the token to be sent.
     :param token_issuer: Issuer of the token to be sent. It can be None when dealing with native asset (XLM).
     :param transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
     """
@@ -99,21 +99,21 @@ def send_payment(cli_session, destination_address, asset_type, amount, token_iss
     if private_key is None:
         return
 
-    if not is_valid_stellar_public_key(destination_address):
+    if not is_valid_public_key(destination_address):
         print('The given destination address is invalid')
         return
     if destination_address == cli_session.public_key:
         print('Sending payment to own address. This is not allowed')
         return
-    if token_issuer is not None and not is_valid_stellar_public_key(token_issuer):
+    if token_issuer is not None and not is_valid_public_key(token_issuer):
         print('The given token issuer address is invalid')
         return
-    if not is_valid_stellar_transaction_text_memo(transaction_memo):
+    if not is_valid_transaction_text_memo(transaction_memo):
         print('The maximum size of the text memo is {} bytes'.format(STELLAR_MEMO_TEXT_MAX_BYTES))
         return
 
     if yes_or_no_input('A payment of {} {} will be done to the following address {}. Are you sure you want to proceed?'
-                       .format(amount, asset_type, destination_address)) == USER_INPUT_NO:
+                       .format(amount, token_code, destination_address)) == USER_INPUT_NO:
         return
 
     builder = Builder(secret=private_key)
@@ -122,9 +122,24 @@ def send_payment(cli_session, destination_address, asset_type, amount, token_iss
         destination=destination_address,
         amount=amount,
         asset_issuer=token_issuer,
-        asset_code=asset_type)
+        asset_code=token_code)
     response = _sign_and_submit_operation(builder)
     process_server_payment_response(response)
+
+
+def send_path_payment(cli_session, destination_address,
+                      code_token_to_send, max_amount_to_send, issuer_token_to_send,
+                      code_token_to_be_received, amount_to_be_received, issuer_token_to_be_received,
+                      transaction_memo=''):
+    private_key = _fetch_valid_private_key(cli_session)
+    if private_key is None:
+        return
+
+    if not is_valid_public_key(destination_address):
+        print('The given destination address is invalid')
+        return
+
+    # TODO: Incomplete
 
 
 def establish_trustline(cli_session, destination_address, token_code, token_limit, transaction_memo=''):
@@ -132,13 +147,13 @@ def establish_trustline(cli_session, destination_address, token_code, token_limi
     if private_key is None:
         return
 
-    if not is_valid_stellar_public_key(destination_address):
+    if not is_valid_public_key(destination_address):
         print('The given destination address is invalid')
         return
     if destination_address == cli_session.public_key:
         print('Sending change of trust transaction to own address. This is not allowed')
         return
-    if not is_valid_stellar_transaction_text_memo(transaction_memo):
+    if not is_valid_transaction_text_memo(transaction_memo):
         print('The maximum size of the text memo is {} bytes'.format(STELLAR_MEMO_TEXT_MAX_BYTES))
         return
 
@@ -203,8 +218,8 @@ def print_xdr_transaction_result(unpacked_tx_result):
 def _fetch_valid_private_key(cli_session):
     private_key = cli_session.private_key
     if private_key is None \
-            or not is_valid_stellar_private_key(private_key) \
-            or not is_priv_key_matching_pub_key(private_key, cli_session.public_key):
+            or not is_valid_private_key(private_key) \
+            or not is_valid_keypair(private_key, cli_session.public_key):
         private_key = _ask_user_for_private_key(cli_session,
                                                 "Either no private key was found for this CLI session account, "
                                                 "the private key for this CLI session account is invalid or "
@@ -216,11 +231,11 @@ def _fetch_valid_private_key(cli_session):
 
 def _ask_user_for_private_key(cli_session, msg):
     private_key = password_input(msg)
-    if not is_valid_stellar_private_key(private_key):
+    if not is_valid_private_key(private_key):
         print('The given private key is invalid')
         return None
 
-    if not is_priv_key_matching_pub_key(private_key, cli_session.public_key):
+    if not is_valid_keypair(private_key, cli_session.public_key):
         print('The given private key does not match with the public key of the current CLI session')
         return None
 
