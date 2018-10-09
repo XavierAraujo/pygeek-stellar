@@ -9,7 +9,7 @@ from stellar_base.stellarxdr import StellarXDR_const
 from xdrlib import Error as XDRError
 # Local imports
 from .utils.stellar import *
-from .user_input import *
+from .utils.user_input import *
 from .constants import *
 from .utils.generic import *
 

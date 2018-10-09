@@ -2,7 +2,7 @@
 from stellar_base.keypair import Keypair
 # Local imports
 from .constants import *
-from .user_input import *
+from .utils.user_input import *
 from .utils.file import *
 from .utils.generic import *
 
