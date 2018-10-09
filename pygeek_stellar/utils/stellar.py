@@ -42,13 +42,15 @@ def is_valid_private_key(key):
 
 def is_valid_transaction_text_memo(memo):
     """
-    Checks if a given Stellar transaction text memo is valid. To be valid the memo
+    Checks if a given Stellar transaction text memo is valid. To be valid the text memo
     can only have, at most, 28 bytes.
     :param memo: Text memo to be evaluated.
     :type memo: str
     :return: Returns true if the given text memo is valid and false otherwise.
     :rtype: bool
     """
+    if memo is None:
+        return False
     return False if len(memo) > STELLAR_MEMO_TEXT_MAX_BYTES else True
 
 
