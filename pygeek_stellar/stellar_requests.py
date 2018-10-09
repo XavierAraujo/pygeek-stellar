@@ -77,7 +77,7 @@ def fund_using_friendbot(cli_session):
     """
     try:
         r = requests.get('{}/friendbot?addr={}'.format(STELLAR_HORIZON_TESTNET_URL, cli_session.public_key))
-        return 'Successful transaction request' if is_sucessful_http_status_code(r.status_code) \
+        return 'Successful transaction request' if is_successful_http_status_code(r.status_code) \
             else 'Failed transaction request (Maybe this account was already funded by Friendbot). Status code {}'.\
             format(r.status_code)
     except requests.exceptions.ConnectionError:

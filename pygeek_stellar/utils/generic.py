@@ -48,7 +48,7 @@ def is_in_range(val, range_min, range_max):
     return True if range_min <= val <= range_max else False
 
 
-def is_sucessful_http_status_code(status_code):
+def is_successful_http_status_code(status_code):
     """
     Checks if a given HTTP status code is successfull. For this to happen
     this value should be between 200 and 299 (2XX)
