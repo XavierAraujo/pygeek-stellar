@@ -27,7 +27,7 @@ This tool is still in development mode so it is using the Stellar Testnet by def
 Also the private key of the generated Stellar addresses is being saved in plain text in a configuration file. This is a severe security issue and it should be fixed in the future.
 
 ## How to contribute
-Here are ideas how you can contribute to this project:
+Here are some ideas on how you can contribute to this project:
 
 - Clone this repository and submit a pull request that fixes a bug or adds a new feature.
 - Create issue tickets for potential improvements.
