@@ -59,7 +59,7 @@ def decode_json_content(content):
     Decodes a given string content to a JSON object
     :param str content: content to be decoded to JSON.
     :return: A JSON object if the string could be successfully decoded and None otherwise
-    :rtype: (json, None)
+    :rtype: json or None
     """
     try:
         return json.loads(content) if content is not None else None

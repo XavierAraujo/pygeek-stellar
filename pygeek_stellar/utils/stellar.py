@@ -88,7 +88,7 @@ def get_address_details_from_network(address):
     :param str address: address to be evaluated.
     :return: In case of success returns a Stellar Address object with the updated address information, fetched from
     the Stellar network. In case of failure returns None
-    :rtype: (Address, None)
+    :rtype: Address or None
     """
     try:
         address = Address(address=address)
