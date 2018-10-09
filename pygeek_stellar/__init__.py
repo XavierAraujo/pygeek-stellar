@@ -12,7 +12,7 @@ def main():
 
     cmd = GeekStellarCmd(session)
     cmd.do_cls(None)
-    print_current_session_account(session)
+    print_current_session_details(session)
     cmd.do_help(None)
     cmd.cmdloop()
 
@@ -27,7 +27,7 @@ def print_banner():
     print(ch * length + '\n')
 
 
-def print_current_session_account(session):
+def print_current_session_details(session):
     print('\nThe following account was chosen: {}\n'.format(session.to_str()))
 
 

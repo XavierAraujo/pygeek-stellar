@@ -8,12 +8,27 @@ from .utils.generic import *
 
 
 class CliSession:
+    """
+    
+    Attributes
+    ----------
+    configs : json
+        Content of the configuration file
+    account_name : str
+        Name of the Stellar account used on the CLI session
+    account_address : str
+        Address of the Stellar account used on the CLI session
+    account_seed : str
+        Secret seed of the Stellar account used on the CLI session. The seed
+        is a string that can be used to decode both private and public key of the account
+    """
 
-    def __init__(self, configs, account_name, public_key, private_key):
+    def __init__(self, configs, account_name, account_address, account_seed):
+
         self.configs = configs
         self.account_name: str = account_name
-        self.public_key: str = public_key
-        self.private_key: str = private_key
+        self.account_address: str = account_address
+        self.account_seed: str = account_seed
 
     def update_config_file(self, file):
 
@@ -22,8 +37,8 @@ class CliSession:
 
         self.configs[JSON_ACCOUNTS_TAG].append({
             JSON_ACCOUNT_NAME_TAG: self.account_name,
-            JSON_PUBLIC_KEY_TAG: self.public_key,
-            JSON_PRIVATE_KEY_TAG: self.private_key})
+            JSON_ACCOUNT_ADDRESS_TAG: self.account_address,
+            JSON_ACCOUNT_SEED_TAG: self.account_seed})
 
         config_file = open(file, 'w')
         succeeded = config_file.write(json.dumps(self.configs))
@@ -31,7 +46,7 @@ class CliSession:
             print("Saved configuration file in: {}".format(file))
 
     def to_str(self):
-        return 'Account Name: {}, Public Key: {}'.format(self.account_name, self.public_key)
+        return 'Account Name: {}, Account Address: {}'.format(self.account_name, self.account_address)
 
 
 def cli_session_init():
@@ -53,9 +68,9 @@ def cli_session_init():
                 return None
 
             name = configs[JSON_ACCOUNTS_TAG][account_n][JSON_ACCOUNT_NAME_TAG]
-            pub_key = configs[JSON_ACCOUNTS_TAG][account_n][JSON_PUBLIC_KEY_TAG]
-            priv_key = configs[JSON_ACCOUNTS_TAG][account_n].get(JSON_PRIVATE_KEY_TAG, None)
-            return CliSession(configs, name, pub_key, priv_key)
+            address = configs[JSON_ACCOUNTS_TAG][account_n][JSON_ACCOUNT_ADDRESS_TAG]
+            seed = configs[JSON_ACCOUNTS_TAG][account_n].get(JSON_ACCOUNT_SEED_TAG, None)
+            return CliSession(configs, name, address, seed)
 
     if yes_or_no_input('Do you wish to add a new Stellar account?') == USER_INPUT_NO:
         return None
@@ -74,6 +89,6 @@ def _print_config_file_accounts(configs_json):
     print('The following {} Stellar accounts were found on the configuration file:'.format(
         len(configs_json[JSON_ACCOUNTS_TAG])))
     for i, account in enumerate(configs_json[JSON_ACCOUNTS_TAG]):
-        print('[{}] Account Name: {}, Public Key: {}'.format(
-            i+1, account[JSON_ACCOUNT_NAME_TAG], account[JSON_PUBLIC_KEY_TAG]))
+        print('[{}] Account Name: {}, Account Address: {}'.format(
+            i+1, account[JSON_ACCOUNT_NAME_TAG], account[JSON_ACCOUNT_ADDRESS_TAG]))
     print('')

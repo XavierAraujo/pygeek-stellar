@@ -61,15 +61,14 @@ class GeekStellarCmd(Cmd):
             print('A XLM amount is mandatory')
             return
 
-        destination = STELLAR_DONATION_ADDRESS
-        amount = args[0].replace(',','.')
+        amount = args[0].replace(',', '.')
         memo = '' if len(args) < 2 else args[1]  # memo is optional
 
         if not is_float_str(amount):
             print('The transfer amount to transfer must but a valid value')
             return
 
-        send_xlm_payment(self.session, destination, amount, memo)
+        send_payment(self.session, STELLAR_DONATION_ADDRESS, 'XLM', amount, None, memo)
 
     def do_create_new_account(self, args):
         """
@@ -82,7 +81,7 @@ class GeekStellarCmd(Cmd):
             return
 
         address = args[0]
-        amount = args[1].replace(',','.')
+        amount = args[1].replace(',', '.')
         memo = '' if len(args) < 3 else args[2]  # memo is optional
 
         if not is_float_str(amount):
@@ -103,7 +102,7 @@ class GeekStellarCmd(Cmd):
 
         destination = args[0]
         token_name = args[1]
-        amount = args[2].replace(',','.')
+        amount = args[2].replace(',', '.')
         memo = '' if len(args) < 4 else args[3]  # memo is optional
 
         if not is_float_str(amount):
@@ -111,7 +110,7 @@ class GeekStellarCmd(Cmd):
             return
 
         # TODO: Check who should be the issuer! Should it be a input from the user?
-        send_payment(self.session, destination, token_name, amount, self.session.public_key, memo)
+        send_payment(self.session, destination, token_name, amount, self.session.account_address, memo)
 
     def do_send_xlm_payment(self, args):
         """
@@ -124,14 +123,14 @@ class GeekStellarCmd(Cmd):
             return
 
         destination = args[0]
-        amount = args[1].replace(',','.')
+        amount = args[1].replace(',', '.')
         memo = '' if len(args) < 3 else args[2]  # memo is optional
 
         if not is_float_str(amount):
             print('The transfer amount to transfer must but a valid value')
             return
 
-        send_payment(self.cli_session, destination, 'XLM', amount, None, memo)
+        send_payment(self.session, destination, 'XLM', amount, None, memo)
 
     def do_establish_trustline(self, args):
         """

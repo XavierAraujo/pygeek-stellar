@@ -6,29 +6,30 @@ from stellar_base.keypair import Keypair
 STELLAR_MEMO_TEXT_MAX_BYTES = 28
 
 
-def is_valid_public_key(key):
+def is_valid_address(address):
     """
-    Checks if a given Stellar public key/address is valid.
-    :param key: Public key/address to be evaluated.
-    :type key: str
-    :return: Returns true if the given public key/address is valid and false otherwise.
+    Checks if a given Stellar address is valid. It does not check if it exists on the Stellar
+    network, only if it is correctly formatted.
+    :param address: address to be evaluated.
+    :type address: str
+    :return: Returns true if the given address is valid and false otherwise.
     :rtype: bool
     """
-    if key is None:
+    if address is None:
         return False
     try:
-        stellar_base.utils.decode_check('account', key)
+        stellar_base.utils.decode_check('account', address)
         return True
     except DecodeError:
         return False
 
 
-def is_valid_private_key(key):
+def is_valid_seed(key):
     """
-    Checks if a given Stellar private key/seed is valid.
-    :param key: Private key/seed to be evaluated.
+    Checks if a given Stellar seed is valid.
+    :param key: Seed to be evaluated.
     :type key: str
-    :return: Returns true if the given private key/seed is valid and false otherwise.
+    :return: Returns true if the seed is valid and false otherwise.
     :rtype: bool
     """
     if key is None:
@@ -54,22 +55,21 @@ def is_valid_transaction_text_memo(memo):
     return False if len(memo) > STELLAR_MEMO_TEXT_MAX_BYTES else True
 
 
-def is_valid_keypair(private_key, public_key):
+def is_address_matching_seed(seed, address):
     """
-    Checks if the specified private key/seed matches the specified public key/address.
-    If the keys match it means that they form a Stellar keypair.
-    :param private_key: Private key/seed to be evaluated.
-    :type private_key: str
-    :param public_key: Public key/address to be evaluated.
-    :type public_key: str
-    :return: Returns true if the given keys form a keypair and false otherwise.
+    Checks if the specified seed address matches the specified address.
+    :param seed: Seed to be evaluated.
+    :type seed: str
+    :param address: Address to be evaluated.
+    :type address: str
+    :return: Returns true if seed address matches the specified address, and false otherwise.
     :rtype: bool
     """
-    if not is_valid_private_key(private_key) \
-            or not is_valid_public_key(public_key):
+    if not is_valid_seed(seed) \
+            or not is_valid_address(address):
         return False
 
-    keypair = Keypair.from_seed(seed=private_key)
-    if keypair.address().decode() == public_key:
+    keypair = Keypair.from_seed(seed=seed)
+    if keypair.address().decode() == address:
         return True
     return False

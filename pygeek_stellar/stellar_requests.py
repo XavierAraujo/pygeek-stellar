@@ -3,7 +3,6 @@ import requests
 import base64
 # 3rd party imports
 from stellar_base.address import Address
-from stellar_base.exceptions import *
 from stellar_base.builder import Builder
 from stellar_base.stellarxdr import Xdr
 from stellar_base.stellarxdr import StellarXDR_const
@@ -24,11 +23,11 @@ def create_new_account(cli_session, account_address, amount, transaction_memo=''
     :param amount: XLM amount to transfer to the new account.
     :param transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
     """
-    private_key = _fetch_valid_private_key(cli_session)
-    if private_key is None:
+    seed = _fetch_valid_seed(cli_session)
+    if seed is None:
         return
 
-    if not is_valid_public_key(account_address):
+    if not is_valid_address(account_address):
         print('The given account address is invalid')
         return
 
@@ -37,12 +36,12 @@ def create_new_account(cli_session, account_address, amount, transaction_memo=''
                        .format(amount, account_address)) == USER_INPUT_NO:
         return
 
-    builder = Builder(secret=private_key)
+    builder = Builder(secret=seed)
     builder.add_text_memo(transaction_memo)
     builder.append_create_account_op(
         destination=account_address,
         starting_balance=amount,
-        source=cli_session.public_key)
+        source=cli_session.account_address)
     response = _sign_and_submit_operation(builder)
     #process_server_payment_response(response) # TODO: Parse response
 
@@ -55,7 +54,7 @@ def get_account_balances(cli_session):
     :return: Returns a list containing the account balances structured in the following manner
     : [['token1', amount], ['token2', amount]]
     """
-    address = _get_address_from_public_key(cli_session.public_key)
+    address = _get_address_info_from_network(cli_session.account_address)
 
     if address is None:
         return None
@@ -76,7 +75,7 @@ def fund_using_friendbot(cli_session):
     :return: Returns a string with the result of the fund request.
     """
     try:
-        r = requests.get('{}/friendbot?addr={}'.format(STELLAR_HORIZON_TESTNET_URL, cli_session.public_key))
+        r = requests.get('{}/friendbot?addr={}'.format(STELLAR_HORIZON_TESTNET_URL, cli_session.account_address))
         return 'Successful transaction request' if is_successful_http_status_code(r.status_code) \
             else 'Failed transaction request (Maybe this account was already funded by Friendbot). Status code {}'.\
             format(r.status_code)
@@ -88,24 +87,24 @@ def send_payment(cli_session, destination_address, token_code, amount, token_iss
     """
     This method is used to send a transaction of the specified token to a given address.
     :param cli_session: Current CLI session.
-    :param destination_address: Destination address (equivalent to the public key).
+    :param destination_address: Destination address.
     :param amount: Amount to be sent.
     :param token_code: Code of the token to be sent.
     :param token_issuer: Issuer of the token to be sent. It can be None when dealing with native asset (XLM).
     :param transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
     """
 
-    private_key = _fetch_valid_private_key(cli_session)
-    if private_key is None:
+    seed = _fetch_valid_seed(cli_session)
+    if seed is None:
         return
 
-    if not is_valid_public_key(destination_address):
+    if not is_valid_address(destination_address):
         print('The given destination address is invalid')
         return
-    if destination_address == cli_session.public_key:
+    if destination_address == cli_session.account_address:
         print('Sending payment to own address. This is not allowed')
         return
-    if token_issuer is not None and not is_valid_public_key(token_issuer):
+    if token_issuer is not None and not is_valid_address(token_issuer):
         print('The given token issuer address is invalid')
         return
     if not is_valid_transaction_text_memo(transaction_memo):
@@ -116,7 +115,7 @@ def send_payment(cli_session, destination_address, token_code, amount, token_iss
                        .format(amount, token_code, destination_address)) == USER_INPUT_NO:
         return
 
-    builder = Builder(secret=private_key)
+    builder = Builder(secret=seed)
     builder.add_text_memo(transaction_memo)
     builder.append_payment_op(
         destination=destination_address,
@@ -131,11 +130,11 @@ def send_path_payment(cli_session, destination_address,
                       code_token_to_send, max_amount_to_send, issuer_token_to_send,
                       code_token_to_be_received, amount_to_be_received, issuer_token_to_be_received,
                       transaction_memo=''):
-    private_key = _fetch_valid_private_key(cli_session)
-    if private_key is None:
+    seed = _fetch_valid_seed(cli_session)
+    if seed is None:
         return
 
-    if not is_valid_public_key(destination_address):
+    if not is_valid_address(destination_address):
         print('The given destination address is invalid')
         return
 
@@ -143,21 +142,21 @@ def send_path_payment(cli_session, destination_address,
 
 
 def establish_trustline(cli_session, destination_address, token_code, token_limit, transaction_memo=''):
-    private_key = _fetch_valid_private_key(cli_session)
-    if private_key is None:
+    seed = _fetch_valid_seed(cli_session)
+    if seed is None:
         return
 
-    if not is_valid_public_key(destination_address):
+    if not is_valid_address(destination_address):
         print('The given destination address is invalid')
         return
-    if destination_address == cli_session.public_key:
+    if destination_address == cli_session.account_address:
         print('Sending change of trust transaction to own address. This is not allowed')
         return
     if not is_valid_transaction_text_memo(transaction_memo):
         print('The maximum size of the text memo is {} bytes'.format(STELLAR_MEMO_TEXT_MAX_BYTES))
         return
 
-    builder = Builder(secret=private_key)
+    builder = Builder(secret=seed)
     builder.add_text_memo(transaction_memo)
     builder.append_trust_op(
         destination=destination_address,
@@ -171,7 +170,7 @@ def _sign_and_submit_operation(builder):
     builder.sign()
     try:
         return builder.submit()
-    except Exception as e:
+    except Exception:
         # Too broad exception because no specific exception is being thrown by the stellar_base package.
         # TODO: This should be fixed in future versions
         print("An error occurred (Please check your Internet connection)")
@@ -215,39 +214,39 @@ def print_xdr_transaction_result(unpacked_tx_result):
         print('Server response payment result: {} (Code: {})'.format(str(payment_result), payment_result.code))
 
 
-def _fetch_valid_private_key(cli_session):
-    private_key = cli_session.private_key
-    if private_key is None \
-            or not is_valid_private_key(private_key) \
-            or not is_valid_keypair(private_key, cli_session.public_key):
-        private_key = _ask_user_for_private_key(cli_session,
-                                                "Either no private key was found for this CLI session account, "
-                                                "the private key for this CLI session account is invalid or "
-                                                "the private key does match the current CLI session account public "
-                                                "key. No transaction can be made without a valid private key. Please "
-                                                "insert your private key to process the transaction")
-    return private_key
+def _fetch_valid_seed(cli_session):
+    seed = cli_session.account_seed
+    if seed is None \
+            or not is_valid_seed(seed) \
+            or not is_address_matching_seed(seed, cli_session.account_address):
+        seed = _ask_for_user_seed(cli_session,
+                                  "Either no seed was found for this CLI session account, "
+                                  "the seed for this CLI session account is invalid or "
+                                  "the seed does match the current CLI session account address. "
+                                  "No transaction can be made without a valid seed. Please "
+                                  "insert your seed to process the transaction")
+    return seed
 
 
-def _ask_user_for_private_key(cli_session, msg):
-    private_key = password_input(msg)
-    if not is_valid_private_key(private_key):
-        print('The given private key is invalid')
+def _ask_for_user_seed(cli_session, msg):
+    seed = password_input(msg)
+    if not is_valid_seed(seed):
+        print('The given seed is invalid')
         return None
 
-    if not is_valid_keypair(private_key, cli_session.public_key):
-        print('The given private key does not match with the public key of the current CLI session')
+    if not is_address_matching_seed(seed, cli_session.account_address):
+        print('The given seed does not match with the address of the current CLI session')
         return None
 
-    if yes_or_no_input('Do you want to save the private key for this CLI session account?') == USER_INPUT_YES:
-        cli_session.private_key = private_key
+    if yes_or_no_input('Do you want to save the seed for this CLI session account?') == USER_INPUT_YES:
+        cli_session.account_seed = seed
 
-    return private_key
+    return seed
 
 
-def _get_address_from_public_key(public_key):
+def _get_address_info_from_network(address):
     try:
-        address = Address(address=public_key)
+        address = Address(address=address)
         address.get()  # Get the latest information from Horizon
     except AccountNotExistError:
         print('The specified account does not exist')

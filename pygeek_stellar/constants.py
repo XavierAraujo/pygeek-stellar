@@ -7,8 +7,8 @@ CLI_BANNER_TEXT = 'PYGEEK-STELLAR'
 DEFAULT_CONFIG_FILE = '{}/.pygeek-stellar.config'.format(str(Path.home()))
 JSON_ACCOUNTS_TAG = 'accounts'
 JSON_ACCOUNT_NAME_TAG = 'account_name'
-JSON_PUBLIC_KEY_TAG = 'public_key'
-JSON_PRIVATE_KEY_TAG = 'private_key'
+JSON_ACCOUNT_ADDRESS_TAG = 'address'
+JSON_ACCOUNT_SEED_TAG = 'secret_seed'
 
 # Stellar related constants
 STELLAR_HORIZON_TESTNET_URL = 'https://horizon-testnet.stellar.org'
