@@ -4,6 +4,7 @@ import os
 import shlex
 # Local imports
 from .stellar_requests import *
+from .stellar_queries import *
 from .utils.generic import *
 
 
@@ -41,6 +42,28 @@ class GeekStellarCmd(Cmd):
             return
         for balance in balances:
             print('  {}: {}'.format(balance[0], balance[1]))
+
+    def do_get_account_payments(self, args):
+        """
+        Requests info regarding payments from the Stellar Horizon server.
+        """
+        payments = get_account_payments(self.session)
+        if payments is None:
+            print('No payments could be retrieved')
+            return
+        print(payments)
+        # TODO: Process payments json
+
+    def do_get_account_transactions(self, args):
+        """
+        Requests info regarding payments from the Stellar Horizon server.
+        """
+        transactions = get_account_transactions(self.session)
+        if transactions is None:
+            print('No transactions could be retrieved')
+            return
+        print(transactions)
+        # TODO: Process transactions json
 
     def do_request_funds(self, args):
         """
