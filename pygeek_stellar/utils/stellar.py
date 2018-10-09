@@ -90,14 +90,17 @@ def get_address_details_from_network(address):
     the Stellar network. In case of failure returns None
     :rtype: Address or None
     """
+    if not is_valid_address(address):
+        print('Trying to get information of an invalid address.')
+        return None
+
     try:
         address = Address(address=address)
         address.get()  # Get the latest information from Horizon
     except AccountNotExistError:
-        print('The specified account does not exist')
-        raise AccountNotExistError
+        print('The specified account does not exist.')
         return None
     except HorizonError:
-        print('A connection error occurred (Please check your Internet connection)')
+        print('A connection error occurred (Please check your Internet connection).')
         return None
     return address

@@ -35,8 +35,14 @@ class GeekStellarCmd(Cmd):
     def do_get_account_balances(self, args):
         """
         Requests the current XLM (Stellar Lumens) balance from the Stellar Horizon server.
+        If no account address is specified the account address of the current CLI session
+        will be used.
+        Usage: get_account_balances {account_address: optional}
         """
-        balances = get_account_balances(self.session)
+        args = shlex.split(args)
+        account_address = args[0] if len(args) >= 1 else self.session.account_address
+
+        balances = get_account_balances(account_address)
         if balances is None:
             print('No balances could be retrieved')
             return
@@ -45,9 +51,15 @@ class GeekStellarCmd(Cmd):
 
     def do_get_account_payments(self, args):
         """
-        Requests info regarding payments from the Stellar Horizon server.
+        Queries the Stellar Horizon server regarding payments related info.
+        If no account address is specified the account address of the current CLI session
+        will be used.
+        Usage: get_account_payments {account_address: optional}
         """
-        payments = get_account_payments(self.session)
+        args = shlex.split(args)
+        account_address = args[0] if len(args) >= 1 else self.session.account_address
+
+        payments = get_account_payments(account_address)
         if payments is None:
             print('No payments could be retrieved')
             return
@@ -56,9 +68,15 @@ class GeekStellarCmd(Cmd):
 
     def do_get_account_transactions(self, args):
         """
-        Requests info regarding payments from the Stellar Horizon server.
+        Queries the Stellar Horizon server regarding transactions related info.
+        If no account address is specified the account address of the current CLI session
+        will be used.
+        Usage: get_account_transactions {account_address: optional}
         """
-        transactions = get_account_transactions(self.session)
+        args = shlex.split(args)
+        account_address = args[0] if len(args) >= 1 else self.session.account_address
+
+        transactions = get_account_transactions(account_address)
         if transactions is None:
             print('No transactions could be retrieved')
             return
