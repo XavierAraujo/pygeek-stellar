@@ -1,8 +1,7 @@
 # System imports
 import requests
 import base64
-# 3rd party imports
-from stellar_base.address import Address
+# 3rd party importsc
 from stellar_base.builder import Builder
 from stellar_base.stellarxdr import Xdr
 from stellar_base.stellarxdr import StellarXDR_const
@@ -12,16 +11,17 @@ from .utils.stellar import *
 from .utils.user_input import *
 from .constants import *
 from .utils.generic import *
+from .cli_session import CliSession
 
 
 def create_new_account(cli_session, account_address, amount, transaction_memo=''):
     """
     This method creates a new Stellar account. For this to be done a certain amount
     of XLM must be transferred the Stellar account.
-    :param cli_session: Current CLI session.
-    :param account_address: Address of the new account.
-    :param amount: XLM amount to transfer to the new account.
-    :param transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
+    :param CliSession cli_session: Current CLI session.
+    :param str account_address: Address of the new account.
+    :param str amount: XLM amount to transfer to the new account.
+    :param str transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
     """
     seed = _fetch_valid_seed(cli_session)
     if seed is None:
@@ -50,11 +50,12 @@ def get_account_balances(cli_session):
     """
     This method is used to fetch all the balances from the current CLI session account
     from the Stellar network.
-    :param cli_session: Current CLI session.
+    :param CliSession cli_session: Current CLI session.
     :return: Returns a list containing the account balances structured in the following manner
     : [['token1', amount], ['token2', amount]]
+    :rtype: list of (str, str)
     """
-    address = _get_address_info_from_network(cli_session.account_address)
+    address = get_address_details_from_network(cli_session.account_address)
 
     if address is None:
         return None
@@ -71,8 +72,9 @@ def fund_using_friendbot(cli_session):
     """
     This method is used to request the Stellar Friendbot to fund the current CLI session
     account. This will only work on the Stellar testnet.
-    :param cli_session: Current CLI session.
+    :param CliSession cli_session: Current CLI session.
     :return: Returns a string with the result of the fund request.
+    :rtype: str
     """
     try:
         r = requests.get('{}/friendbot?addr={}'.format(STELLAR_HORIZON_TESTNET_URL, cli_session.account_address))
@@ -86,12 +88,12 @@ def fund_using_friendbot(cli_session):
 def send_payment(cli_session, destination_address, token_code, amount, token_issuer=None, transaction_memo=''):
     """
     This method is used to send a transaction of the specified token to a given address.
-    :param cli_session: Current CLI session.
-    :param destination_address: Destination address.
-    :param amount: Amount to be sent.
-    :param token_code: Code of the token to be sent.
-    :param token_issuer: Issuer of the token to be sent. It can be None when dealing with native asset (XLM).
-    :param transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
+    :param CliSession cli_session: Current CLI session.
+    :param str destination_address: Destination address.
+    :param str amount: Amount to be sent.
+    :param str token_code: Code of the token to be sent.
+    :param str token_issuer: Issuer of the token to be sent. It can be None when dealing with native asset (XLM).
+    :param str transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
     """
 
     seed = _fetch_valid_seed(cli_session)
@@ -242,16 +244,3 @@ def _ask_for_user_seed(cli_session, msg):
         cli_session.account_seed = seed
 
     return seed
-
-
-def _get_address_info_from_network(address):
-    try:
-        address = Address(address=address)
-        address.get()  # Get the latest information from Horizon
-    except AccountNotExistError:
-        print('The specified account does not exist')
-        return None
-    except HorizonError:
-        print('A connection error occurred (Please check your Internet connection)')
-        return None
-    return address

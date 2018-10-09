@@ -8,10 +8,11 @@ from cryptography.fernet import InvalidToken
 
 def encrypt(content, password):
     """
-    Method to encrypt the given content based on the specified password
-    :param content: Content to be encrypted. It must be a byte array
-    :param password: Encryption password
-    :return: Returns a byte array with the encrypted content
+    Method to encrypt the given content based on the specified password.
+    :param bytearray content: Content to be encrypted.
+    :param str password: Encryption password.
+    :return: Returns a byte array with the encrypted content.
+    :rtype: bytearray
     """
     f = Fernet(password2cryptographic_key(password))
     return f.encrypt(content)
@@ -19,10 +20,11 @@ def encrypt(content, password):
 
 def decrypt(content, password):
     """
-    Method to decrypt the given content based on the specified password
-    :param content: Content to be decrypted. It must be a byte array
-    :param password: Decryption password
-    :return: Returns a byte array with the decrypted content
+    Method to decrypt the given content based on the specified password.
+    :param bytearray content: Content to be decrypted.
+    :param str password: Decryption password.
+    :return: Returns a byte array with the decrypted content.
+    :rtype: bytearray
     """
 
     f = Fernet(password2cryptographic_key(password))
@@ -35,6 +37,12 @@ def decrypt(content, password):
 
 
 def password2cryptographic_key(password):
+    """
+    This method generates a key, based on the specified password, to be used during the
+    encryption and decryption procedures.
+    :param str password: Password to be used during the key generation.
+    :return: Returns the generated key.
+    """
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,

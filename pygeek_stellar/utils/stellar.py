@@ -2,6 +2,7 @@
 import stellar_base.utils
 from stellar_base.exceptions import *
 from stellar_base.keypair import Keypair
+from stellar_base.address import Address
 
 STELLAR_MEMO_TEXT_MAX_BYTES = 28
 
@@ -10,8 +11,7 @@ def is_valid_address(address):
     """
     Checks if a given Stellar address is valid. It does not check if it exists on the Stellar
     network, only if it is correctly formatted.
-    :param address: address to be evaluated.
-    :type address: str
+    :param str address: address to be evaluated.
     :return: Returns true if the given address is valid and false otherwise.
     :rtype: bool
     """
@@ -27,8 +27,7 @@ def is_valid_address(address):
 def is_valid_seed(key):
     """
     Checks if a given Stellar seed is valid.
-    :param key: Seed to be evaluated.
-    :type key: str
+    :param str key: Seed to be evaluated.
     :return: Returns true if the seed is valid and false otherwise.
     :rtype: bool
     """
@@ -45,8 +44,7 @@ def is_valid_transaction_text_memo(memo):
     """
     Checks if a given Stellar transaction text memo is valid. To be valid the text memo
     can only have, at most, 28 bytes.
-    :param memo: Text memo to be evaluated.
-    :type memo: str
+    :param str memo: Text memo to be evaluated.
     :return: Returns true if the given text memo is valid and false otherwise.
     :rtype: bool
     """
@@ -58,10 +56,8 @@ def is_valid_transaction_text_memo(memo):
 def is_address_matching_seed(seed, address):
     """
     Checks if the specified seed address matches the specified address.
-    :param seed: Seed to be evaluated.
-    :type seed: str
-    :param address: Address to be evaluated.
-    :type address: str
+    :param str seed: Seed to be evaluated.
+    :param str address: Address to be evaluated.
     :return: Returns true if seed address matches the specified address, and false otherwise.
     :rtype: bool
     """
@@ -73,3 +69,35 @@ def is_address_matching_seed(seed, address):
     if keypair.address().decode() == address:
         return True
     return False
+
+
+def is_account_existent(address):
+    """
+    Checks if a given Stellar address exists in the network. It assumes that the address
+    parameter received is a valid address string.
+    :param str address: address to be evaluated.
+    :return: Returns true if the given address exists in the network and false otherwise.
+    :rtype: bool
+    """
+    return True if get_address_details_from_network(address) is not None else False
+
+
+def get_address_details_from_network(address):
+    """
+    Queries the Stellar network regarding the details of the specified account address.
+    :param str address: address to be evaluated.
+    :return: In case of success returns a Stellar Address object with the updated address information, fetched from
+    the Stellar network. In case of failure returns None
+    :rtype: (Address, None)
+    """
+    try:
+        address = Address(address=address)
+        address.get()  # Get the latest information from Horizon
+    except AccountNotExistError:
+        print('The specified account does not exist')
+        raise AccountNotExistError
+        return None
+    except HorizonError:
+        print('A connection error occurred (Please check your Internet connection)')
+        return None
+    return address

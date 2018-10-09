@@ -12,9 +12,9 @@ FILE_MODE_WRITE_BINARY = 'wb'
 def write_file(filename, content, write_as_binary=False):
     """
     Writes the given content to the specified file
-    :param filename: File to which the content should be written
-    :param content: Content to be written
-    :param write_as_binary: Flag that specifies if the content must be written in binary form or not.
+    :param str filename: File to which the content should be written
+    :param str content: Content to be written
+    :param bool write_as_binary: Flag that specifies if the content must be written in binary form or not.
     This parameter is optional and by default files are not written is binary form.
     """
     opening_mode = FILE_MODE_WRITE if not write_as_binary else FILE_MODE_WRITE_BINARY
@@ -31,8 +31,8 @@ def write_file(filename, content, write_as_binary=False):
 def load_file(filename, read_as_binary=False):
     """
     Loads the specified file to memory
-    :param filename: File to be loaded
-    :param read_as_binary: Flag that specifies if the file must be loaded in binary form or not.
+    :param str filename: File to be loaded
+    :param bool read_as_binary: Flag that specifies if the file must be loaded in binary form or not.
     This parameter is optional and by default files are not loaded is binary form.
     """
     if os.path.isfile(filename):
@@ -49,9 +49,9 @@ def load_file(filename, read_as_binary=False):
 def write_encrypted_file(filename, content, password):
     """
     Writes the given content to the specified file and encrypts it with the specified password
-    :param filename: File to which the content should be written
-    :param content: Content to be written
-    :param password: Password to encrypt the file
+    :param str filename: File to which the content should be written
+    :param str content: Content to be written
+    :param str password: Password to encrypt the file
     """
     if not _is_valid_password(password):
         print('A valid password must be given to decrypt the file')
@@ -64,9 +64,9 @@ def write_encrypted_file(filename, content, password):
 def load_encrypted_file(filename, password, read_as_binary=False):
     """
     Loads the specified file to memory and decrypts it with the specified password
-    :param filename: File to be loaded
-    :param password: Password to decrypt the file
-    :param read_as_binary: Flag that specifies if the file must be loaded in binary form or not.
+    :param str filename: File to be loaded
+    :param str password: Password to decrypt the file
+    :param bool read_as_binary: Flag that specifies if the file must be loaded in binary form or not.
     This parameter is optional and by default files are not loaded is binary form.
     """
     if not _is_valid_password(password):
