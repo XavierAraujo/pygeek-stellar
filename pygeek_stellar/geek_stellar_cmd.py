@@ -86,10 +86,14 @@ class GeekStellarCmd(Cmd):
     def do_request_funds(self, args):
         """
         Requests funds from the Stellar Testnet Friendbot. This request will only be successful
-        a single time for each Stellar Testnet address. The request will fail if the address
-        belongs to the real Stellar network.
+        a single time for each Stellar Testnet address. If no account address is specified the
+        account address of the current CLI session will be used.
+        Usage: request_funds( {account_address: optional}
         """
-        result = fund_using_friendbot(self.session)
+        args = shlex.split(args)
+        account_address = args[0] if len(args) >= 1 else self.session.account_address
+
+        result = fund_using_friendbot(account_address)
         print('Friendbot funding result: ' + result)
 
     def do_send_donation(self, args):

@@ -46,16 +46,19 @@ def create_new_account(cli_session, account_address, amount, transaction_memo=''
     #process_server_payment_response(response) # TODO: Parse response
 
 
-def fund_using_friendbot(cli_session):
+def fund_using_friendbot(account_address):
     """
-    This method is used to request the Stellar Friendbot to fund the current CLI session
-    account. This will only work on the Stellar testnet.
-    :param CliSession cli_session: Current CLI session.
+    This method is used to request the Stellar Friendbot to fund the given account
+    address. This will only work on the Stellar testnet.
+    :param str account_address: Account address to be funded.
     :return: Returns a string with the result of the fund request.
     :rtype: str
     """
+    if not is_valid_address(account_address):
+        return 'The given account address is invalid.'
+
     try:
-        r = requests.get('{}/friendbot?addr={}'.format(STELLAR_HORIZON_TESTNET_URL, cli_session.account_address))
+        r = requests.get('{}/friendbot?addr={}'.format(STELLAR_HORIZON_TESTNET_URL, account_address))
         return 'Successful transaction request' if is_successful_http_status_code(r.status_code) \
             else 'Failed transaction request (Maybe this account was already funded by Friendbot). Status code {}'.\
             format(r.status_code)
