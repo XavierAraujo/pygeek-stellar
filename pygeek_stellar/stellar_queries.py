@@ -24,6 +24,12 @@ def get_account_balances(account_address):
 
 
 def get_account_payments(account_address):
+    """
+    This method is used to fetch all the payments from the given account address.
+    :param str account_address: Account address to be evaluated.
+    :return: Returns a JSON string with the payments. TODO: The string must be parsed
+    :rtype: str
+    """
     address = get_address_details_from_network(account_address)
     if address is None:
         return None
@@ -32,6 +38,12 @@ def get_account_payments(account_address):
 
 
 def get_account_transactions(account_address):
+    """
+    This method is used to fetch all the transactions from the given account address.
+    :param str account_address: Account address to be evaluated.
+    :return: Returns a JSON string with the transactions. TODO: The string must be parsed
+    :rtype: str
+    """
     address = get_address_details_from_network(account_address)
     if address is None:
         return None
