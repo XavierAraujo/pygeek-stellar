@@ -1,5 +1,7 @@
 # System imports
 import getpass
+# Local imports
+from .generic import *
 
 USER_INPUT_YES = 'y'
 USER_INPUT_NO = 'n'
@@ -13,11 +15,26 @@ def int_input(msg):
     :return: Returns the integer value inserted by the user.
     :rtype: int
     """
-    try:
-        return int(safe_input(msg), base=10)
-    except ValueError:
+    value = safe_input(msg)
+    while not is_int_str(value):
         print('Input must be a valid integer value')
-        int_input(msg)  # call this method again to fetch a valid integer value
+        value = safe_input(msg)
+    return int(value, base=10)
+
+
+def float_input(msg):
+    """
+    This methods should be used to request a float value from the user. This
+    method will not return until the user inputs a valid float value.
+    :param str msg: Message to be displayed to the user.
+    :return: Returns the float value inserted by the user.
+    :rtype: float
+    """
+    value = safe_input(msg).replace(',', '.')
+    while not is_float_str(value):
+        print('Input must be a valid float value')
+        value = safe_input(msg).replace(',', '.')
+    return float(value)
 
 
 def yes_or_no_input(msg):
