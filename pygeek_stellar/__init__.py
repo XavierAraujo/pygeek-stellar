@@ -4,6 +4,10 @@ from .cli_session import *
 
 
 def main():
+    """
+    Entry point of pygeek-stellar tool. Prints the banner, initializes a
+    CLI session and starts the pygeek-stellar CMD interpreter.
+    """
     print_banner()
 
     session = cli_session_init()
@@ -18,6 +22,9 @@ def main():
 
 
 def print_banner():
+    """
+    Prints the a pygeek-stellar banner in the Command Line Interface.
+    """
     ch = '#'
     length = len(CLI_BANNER_TEXT) + 8
     spaced_text = ' %s ' % CLI_BANNER_TEXT
@@ -28,6 +35,10 @@ def print_banner():
 
 
 def print_current_session_details(session):
+    """
+    Prints information regarding the selected account for a given CLI session.
+    :param CliSession session: Current CLI session.
+    """
     print('\nThe following account was chosen: {}\n'.format(session.to_str()))
 
 
