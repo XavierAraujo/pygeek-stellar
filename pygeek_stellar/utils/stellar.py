@@ -53,7 +53,7 @@ def is_valid_transaction_text_memo(memo):
     return False if len(memo) > STELLAR_MEMO_TEXT_MAX_BYTES else True
 
 
-def is_address_matching_seed(seed, address):
+def is_seed_matching_address(seed, address):
     """
     Checks if the specified seed address matches the specified address.
     :param str seed: Seed to be evaluated.

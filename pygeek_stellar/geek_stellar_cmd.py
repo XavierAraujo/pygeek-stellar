@@ -6,6 +6,7 @@ import shlex
 from .stellar_requests import *
 from .stellar_queries import *
 from .utils.generic import *
+from .cli_session import *
 
 
 class GeekStellarCmd(Cmd):
@@ -113,7 +114,12 @@ class GeekStellarCmd(Cmd):
             print('The transfer amount to transfer must but a valid value')
             return
 
-        send_payment(self.session, STELLAR_DONATION_ADDRESS, 'XLM', amount, None, memo)
+        seed = fetch_valid_seed(self.session)
+        if seed is None:
+            print("The donation cannot be done without a valid account seed")
+            return
+
+        send_payment(self.session.account_address, seed, STELLAR_DONATION_ADDRESS, 'XLM', amount, None, memo)
 
     def do_create_new_account(self, args):
         """
@@ -132,8 +138,13 @@ class GeekStellarCmd(Cmd):
         if not is_float_str(amount):
             print('The transfer amount to transfer must but a valid value')
             return
+
+        seed = fetch_valid_seed(self.session)
+        if seed is None:
+            print("The account cannot be created without a valid account seed")
+            return
         
-        create_new_account(self.session, address, amount, memo)
+        create_new_account(self.session.account_address, seed, address, amount, memo)
         
     def do_send_token_payment(self, args):
         """
@@ -154,8 +165,13 @@ class GeekStellarCmd(Cmd):
             print('The transfer amount to transfer must but a valid value')
             return
 
+        seed = fetch_valid_seed(self.session)
+        if seed is None:
+            print("The token payment cannot be done without a valid account seed")
+            return
+
         # TODO: Check who should be the issuer! Should it be a input from the user?
-        send_payment(self.session, destination, token_name, amount, self.session.account_address, memo)
+        send_payment(self.session.account_address, seed, destination, token_name, amount, self.session.account_address, memo)
 
     def do_send_xlm_payment(self, args):
         """
@@ -175,7 +191,12 @@ class GeekStellarCmd(Cmd):
             print('The transfer amount to transfer must but a valid value')
             return
 
-        send_payment(self.session, destination, 'XLM', amount, None, memo)
+        seed = fetch_valid_seed(self.session)
+        if seed is None:
+            print("The payment cannot be done without a valid account seed")
+            return
+
+        send_payment(self.session.account_address, seed, destination, 'XLM', amount, None, memo)
 
     def do_establish_trustline(self, args):
         """
@@ -195,7 +216,12 @@ class GeekStellarCmd(Cmd):
             print('The token limit must but a valid integer value')
             return
 
-        establish_trustline(self.session, destination, token_name, token_limit)
+        seed = fetch_valid_seed(self.session)
+        if seed is None:
+            print("The trustline cannot be established without a valid account seed")
+            return
+
+        establish_trustline(self.session.account_address, seed, destination, token_name, token_limit)
 
     @staticmethod
     def do_cls(args):

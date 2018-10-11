@@ -34,18 +34,12 @@ class StellarTest(unittest.TestCase):
         self.assertFalse(is_valid_transaction_text_memo(None))
 
     def test_is_address_matching_seed(self):
-        self.assertTrue(is_address_matching_seed(address=StellarTest.ADDRESS_1,
-                                                 seed=StellarTest.SEED_1))
-        self.assertTrue(is_address_matching_seed(address=StellarTest.ADDRESS_2,
-                                                 seed=StellarTest.SEED_2))
-        self.assertFalse(is_address_matching_seed(address=StellarTest.ADDRESS_1,
-                                                  seed=StellarTest.SEED_2))
-        self.assertFalse(is_address_matching_seed(address=StellarTest.ADDRESS_1,
-                                                  seed='invalid_key'))
-        self.assertFalse(is_address_matching_seed(address='invalid_key',
-                                                  seed=StellarTest.SEED_1))
-        self.assertFalse(is_address_matching_seed(address=StellarTest.ADDRESS_1,
-                                                  seed=None))
+        self.assertTrue(is_seed_matching_address(StellarTest.SEED_1, StellarTest.ADDRESS_1))
+        self.assertTrue(is_seed_matching_address(StellarTest.SEED_2, StellarTest.ADDRESS_2))
+        self.assertFalse(is_seed_matching_address(StellarTest.SEED_2, StellarTest.ADDRESS_1))
+        self.assertFalse(is_seed_matching_address('invalid_key', StellarTest.ADDRESS_1))
+        self.assertFalse(is_seed_matching_address('invalid_key', StellarTest.SEED_1))
+        self.assertFalse(is_seed_matching_address(None, StellarTest.ADDRESS_1))
 
 
 if __name__ == '__main__':

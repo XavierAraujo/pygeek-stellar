@@ -11,37 +11,40 @@ from .utils.stellar import *
 from .utils.user_input import *
 from .constants import *
 from .utils.generic import *
-from .cli_session import CliSession
 
 
-def create_new_account(cli_session, account_address, amount, transaction_memo=''):
+def create_new_account(source_account_address, source_account_seed, new_account_address, amount, transaction_memo=''):
     """
     This method creates a new Stellar account. For this to be done a certain amount
-    of XLM must be transferred the Stellar account.
-    :param CliSession cli_session: Current CLI session.
-    :param str account_address: Address of the new account.
+    of XLM must be transferred from a source account to the new account.
+    :param str source_account_address: Address of the account from which the funds to
+    create the new account will be retrieved.
+    :param str source_account_seed: Seed of the account from which the funds to
+    create the new account will be retrieved.
+    :param str new_account_address: Address of the new account.
     :param str amount: XLM amount to transfer to the new account.
     :param str transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
     """
-    seed = _fetch_valid_seed(cli_session)
-    if seed is None:
+    if not is_seed_matching_address(source_account_seed, source_account_address):
+        print("The new account could not be created. Either the given source account address or source"
+              "account seed are invalid or they do not match.")
         return
 
-    if not is_valid_address(account_address):
+    if not is_valid_address(new_account_address):
         print('The given account address is invalid')
         return
 
     if yes_or_no_input('To create the new account, a payment of {} XLM will be done '
                        'to the following address {}. Are you sure you want to proceed?'
-                       .format(amount, account_address)) == USER_INPUT_NO:
+                       .format(amount, new_account_address)) == USER_INPUT_NO:
         return
 
-    builder = Builder(secret=seed)
+    builder = Builder(secret=source_account_seed)
     builder.add_text_memo(transaction_memo)
     builder.append_create_account_op(
-        destination=account_address,
+        destination=new_account_address,
         starting_balance=amount,
-        source=cli_session.account_address)
+        source=source_account_address)
     response = _sign_and_submit_operation(builder)
     #process_server_payment_response(response) # TODO: Parse response
 
@@ -66,25 +69,27 @@ def fund_using_friendbot(account_address):
         return "A connection error occurred (Please check your Internet connection)"
 
 
-def send_payment(cli_session, destination_address, token_code, amount, token_issuer=None, transaction_memo=''):
+def send_payment(source_account_address, source_account_seed, destination_account_address,
+                 token_code, amount, token_issuer=None, transaction_memo=''):
     """
     This method is used to send a transaction of the specified token to a given address.
-    :param CliSession cli_session: Current CLI session.
-    :param str destination_address: Destination address.
+    :param str source_account_address: Address of the account from which the funds will be sent.
+    :param str source_account_seed: Seed of the account from which the funds will be sent.
+    :param str destination_account_address: Destination address.
     :param str amount: Amount to be sent.
     :param str token_code: Code of the token to be sent.
     :param str token_issuer: Issuer of the token to be sent. It can be None when dealing with native asset (XLM).
     :param str transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
     """
-
-    seed = _fetch_valid_seed(cli_session)
-    if seed is None:
+    if not is_seed_matching_address(source_account_seed, source_account_address):
+        print("The payment could not be finalized. Either the given source account address or source"
+              "account seed are invalid or they do not match.")
         return
 
-    if not is_valid_address(destination_address):
+    if not is_valid_address(destination_account_address):
         print('The given destination address is invalid')
         return
-    if destination_address == cli_session.account_address:
+    if destination_account_address == source_account_address:
         print('Sending payment to own address. This is not allowed')
         return
     if token_issuer is not None and not is_valid_address(token_issuer):
@@ -95,13 +100,13 @@ def send_payment(cli_session, destination_address, token_code, amount, token_iss
         return
 
     if yes_or_no_input('A payment of {} {} will be done to the following address {}. Are you sure you want to proceed?'
-                       .format(amount, token_code, destination_address)) == USER_INPUT_NO:
+                       .format(amount, token_code, destination_account_address)) == USER_INPUT_NO:
         return
 
-    builder = Builder(secret=seed)
+    builder = Builder(secret=source_account_seed)
     builder.add_text_memo(transaction_memo)
     builder.append_payment_op(
-        destination=destination_address,
+        destination=destination_account_address,
         amount=amount,
         asset_issuer=token_issuer,
         asset_code=token_code)
@@ -109,12 +114,13 @@ def send_payment(cli_session, destination_address, token_code, amount, token_iss
     process_server_payment_response(response)
 
 
-def send_path_payment(cli_session, destination_address,
+def send_path_payment(source_account_address, source_account_seed, destination_address,
                       code_token_to_send, max_amount_to_send, issuer_token_to_send,
                       code_token_to_be_received, amount_to_be_received, issuer_token_to_be_received,
                       transaction_memo=''):
-    seed = _fetch_valid_seed(cli_session)
-    if seed is None:
+    if not is_seed_matching_address(source_account_seed, source_account_address):
+        print("The path payment could not be finalized. Either the given source account address or source"
+              "account seed are invalid or they do not match.")
         return
 
     if not is_valid_address(destination_address):
@@ -124,25 +130,37 @@ def send_path_payment(cli_session, destination_address,
     # TODO: Incomplete
 
 
-def establish_trustline(cli_session, destination_address, token_code, token_limit, transaction_memo=''):
-    seed = _fetch_valid_seed(cli_session)
-    if seed is None:
+def establish_trustline(source_account_address, source_account_seed, destination_account_address,
+                        token_code, token_limit, transaction_memo=''):
+    """
+    This method is used to create a trustline for a given token code and up to the specified limit,
+    with the specified destination account address.
+    :param str source_account_address: Address of the account from which the funds will be sent.
+    :param str source_account_seed: Seed of the account from which the funds will be sent.
+    :param str destination_account_address: Destination address.
+    :param str token_code: Code of the token to be sent.
+    :param str token_limit: Token limit value of the trustline.
+    :param str transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
+    """
+    if not is_seed_matching_address(source_account_seed, source_account_address):
+        print("The trustline could not be established. Either the given source account address or source"
+              "account seed are invalid or they do not match.")
         return
 
-    if not is_valid_address(destination_address):
+    if not is_valid_address(destination_account_address):
         print('The given destination address is invalid')
         return
-    if destination_address == cli_session.account_address:
+    if destination_account_address == source_account_address:
         print('Sending change of trust transaction to own address. This is not allowed')
         return
     if not is_valid_transaction_text_memo(transaction_memo):
         print('The maximum size of the text memo is {} bytes'.format(STELLAR_MEMO_TEXT_MAX_BYTES))
         return
 
-    builder = Builder(secret=seed)
+    builder = Builder(secret=source_account_seed)
     builder.add_text_memo(transaction_memo)
     builder.append_trust_op(
-        destination=destination_address,
+        destination=destination_account_address,
         code=token_code,
         limit=token_limit)
     response = _sign_and_submit_operation(builder)
@@ -195,33 +213,3 @@ def print_xdr_transaction_result(unpacked_tx_result):
         print("Server response operation result: {}".format(
             'Succeeded' if unpacked_tx_result.result.code == StellarXDR_const.txSUCCESS else 'Failed'))
         print('Server response payment result: {} (Code: {})'.format(str(payment_result), payment_result.code))
-
-
-def _fetch_valid_seed(cli_session):
-    seed = cli_session.account_seed
-    if seed is None \
-            or not is_valid_seed(seed) \
-            or not is_address_matching_seed(seed, cli_session.account_address):
-        seed = _ask_for_user_seed(cli_session,
-                                  "Either no seed was found for this CLI session account, "
-                                  "the seed for this CLI session account is invalid or "
-                                  "the seed does match the current CLI session account address. "
-                                  "No transaction can be made without a valid seed. Please "
-                                  "insert your seed to process the transaction")
-    return seed
-
-
-def _ask_for_user_seed(cli_session, msg):
-    seed = password_input(msg)
-    if not is_valid_seed(seed):
-        print('The given seed is invalid')
-        return None
-
-    if not is_address_matching_seed(seed, cli_session.account_address):
-        print('The given seed does not match with the address of the current CLI session')
-        return None
-
-    if yes_or_no_input('Do you want to save the seed for this CLI session account?') == USER_INPUT_YES:
-        cli_session.account_seed = seed
-
-    return seed
