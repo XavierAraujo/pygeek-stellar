@@ -92,11 +92,11 @@ def fetch_valid_seed(cli_session):
             or not is_valid_seed(seed) \
             or not is_seed_matching_address(seed, cli_session.account_address):
         seed = ask_for_user_seed(cli_session,
-                                  "Either no seed was found for this CLI session account, "
-                                  "the seed for this CLI session account is invalid or "
-                                  "the seed does match the current CLI session account address. "
-                                  "No transaction can be made without a valid seed. Please "
-                                  "insert your seed to process the transaction")
+                                 "Either no seed was found for this CLI session account, "
+                                 "the seed for this CLI session account is invalid or "
+                                 "the seed does match the current CLI session account address. "
+                                 "No transaction can be made without a valid seed. Please "
+                                 "insert your seed to process the transaction")
     return seed
 
 
