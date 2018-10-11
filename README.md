@@ -21,6 +21,20 @@ After installing the **pygeek-stellar** package from Pypi you can simple type th
 pygeek-stellar
 ```
 
+## Tests
+
+We use the nose package to run the test suite. If you to run the unit test you can type the following command at the root directory of the project:   
+
+```bash
+python3.7 setup.py test
+```
+
+or
+
+```bash
+nosetests -v
+```
+
 ## Warning
 
 This tool is still in development mode so it is using the Stellar Testnet by default.
