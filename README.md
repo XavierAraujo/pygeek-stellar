@@ -23,7 +23,8 @@ pygeek-stellar
 
 ## Tests
 
-We use the nose package to run the test suite. If you to run the unit test you can type the following command at the root directory of the project:   
+
+To run the test suite the Nose package is used. If you want to run the unit tests you can type the following command at the root directory of the project:   
 
 ```bash
 python3.7 setup.py test
