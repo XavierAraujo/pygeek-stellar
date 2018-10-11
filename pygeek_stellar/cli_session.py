@@ -89,7 +89,7 @@ def cli_session_init():
 def fetch_valid_seed(cli_session):
     seed = cli_session.account_seed
     if seed is None \
-            or not is_valid_seed(seed) \
+            or not is_seed_valid(seed) \
             or not is_seed_matching_address(seed, cli_session.account_address):
         seed = ask_for_user_seed(cli_session,
                                  "Either no seed was found for this CLI session account, "
@@ -102,7 +102,7 @@ def fetch_valid_seed(cli_session):
 
 def ask_for_user_seed(cli_session, msg):
     seed = password_input(msg)
-    if not is_valid_seed(seed):
+    if not is_seed_valid(seed):
         print('The given seed is invalid')
         return None
 

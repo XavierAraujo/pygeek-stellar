@@ -30,7 +30,7 @@ def create_new_account(source_account_address, source_account_seed, new_account_
               "account seed are invalid or they do not match.")
         return
 
-    if not is_valid_address(new_account_address):
+    if not is_address_valid(new_account_address):
         print('The given account address is invalid')
         return
 
@@ -57,7 +57,7 @@ def fund_using_friendbot(account_address):
     :return: Returns a string with the result of the fund request.
     :rtype: str
     """
-    if not is_valid_address(account_address):
+    if not is_address_valid(account_address):
         return 'The given account address is invalid.'
 
     try:
@@ -86,16 +86,16 @@ def send_payment(source_account_address, source_account_seed, destination_accoun
               "account seed are invalid or they do not match.")
         return
 
-    if not is_valid_address(destination_account_address):
+    if not is_address_valid(destination_account_address):
         print('The given destination address is invalid')
         return
     if destination_account_address == source_account_address:
         print('Sending payment to own address. This is not allowed')
         return
-    if token_issuer is not None and not is_valid_address(token_issuer):
+    if token_issuer is not None and not is_address_valid(token_issuer):
         print('The given token issuer address is invalid')
         return
-    if not is_valid_transaction_text_memo(transaction_memo):
+    if not is_transaction_text_memo_valid(transaction_memo):
         print('The maximum size of the text memo is {} bytes'.format(STELLAR_MEMO_TEXT_MAX_BYTES))
         return
 
@@ -123,7 +123,7 @@ def send_path_payment(source_account_address, source_account_seed, destination_a
               "account seed are invalid or they do not match.")
         return
 
-    if not is_valid_address(destination_address):
+    if not is_address_valid(destination_address):
         print('The given destination address is invalid')
         return
 
@@ -147,13 +147,13 @@ def establish_trustline(source_account_address, source_account_seed, destination
               "account seed are invalid or they do not match.")
         return
 
-    if not is_valid_address(destination_account_address):
+    if not is_address_valid(destination_account_address):
         print('The given destination address is invalid')
         return
     if destination_account_address == source_account_address:
         print('Sending change of trust transaction to own address. This is not allowed')
         return
-    if not is_valid_transaction_text_memo(transaction_memo):
+    if not is_transaction_text_memo_valid(transaction_memo):
         print('The maximum size of the text memo is {} bytes'.format(STELLAR_MEMO_TEXT_MAX_BYTES))
         return
 

@@ -7,7 +7,7 @@ from stellar_base.address import Address
 STELLAR_MEMO_TEXT_MAX_BYTES = 28
 
 
-def is_valid_address(address):
+def is_address_valid(address):
     """
     Checks if a given Stellar address is valid. It does not check if it exists on the Stellar
     network, only if it is correctly formatted.
@@ -24,7 +24,7 @@ def is_valid_address(address):
         return False
 
 
-def is_valid_seed(key):
+def is_seed_valid(key):
     """
     Checks if a given Stellar seed is valid.
     :param str key: Seed to be evaluated.
@@ -40,7 +40,7 @@ def is_valid_seed(key):
         return False
 
 
-def is_valid_transaction_text_memo(memo):
+def is_transaction_text_memo_valid(memo):
     """
     Checks if a given Stellar transaction text memo is valid. To be valid the text memo
     can only have, at most, 28 bytes.
@@ -61,8 +61,8 @@ def is_seed_matching_address(seed, address):
     :return: Returns true if seed address matches the specified address, and false otherwise.
     :rtype: bool
     """
-    if not is_valid_seed(seed) \
-            or not is_valid_address(address):
+    if not is_seed_valid(seed) \
+            or not is_address_valid(address):
         return False
 
     keypair = Keypair.from_seed(seed=seed)
@@ -90,7 +90,7 @@ def get_address_details_from_network(address):
     the Stellar network. In case of failure returns None
     :rtype: Address or None
     """
-    if not is_valid_address(address):
+    if not is_address_valid(address):
         print('Trying to get information of an invalid address.')
         return None
 
