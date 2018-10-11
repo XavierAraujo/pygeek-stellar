@@ -13,6 +13,8 @@ setup(name='pygeek-stellar',
             'cryptography',
             'requests'
       ],
+      test_suite='nose.collector',
+      tests_require=['nose'],
       scripts=['bin/pygeek-stellar'],
       python_requires='>=3.7',
       zip_safe=False)
