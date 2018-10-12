@@ -163,7 +163,7 @@ def establish_trustline(source_account_address, source_account_seed, destination
                                   token_limit,
                                   source_account_address)]
     response = submit_operations(source_account_seed, operations, transaction_memo)
-    process_server_payment_response(response)
+    #process_server_payment_response(response)
 
 
 def submit_operations(account_seed, operations, transaction_memo):
