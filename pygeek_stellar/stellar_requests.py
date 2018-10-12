@@ -1,7 +1,8 @@
 # System imports
 import requests
 import base64
-# 3rd party importsc
+# 3rd party imports
+from stellar_base.operation import *
 from stellar_base.builder import Builder
 from stellar_base.stellarxdr import Xdr
 from stellar_base.stellarxdr import StellarXDR_const
@@ -11,6 +12,7 @@ from .utils.stellar import *
 from .utils.user_input import *
 from .constants import *
 from .utils.generic import *
+from .stellar_operations import *
 
 
 def create_new_account(source_account_address, source_account_seed, new_account_address, amount, transaction_memo=''):
@@ -39,14 +41,9 @@ def create_new_account(source_account_address, source_account_seed, new_account_
                        .format(amount, new_account_address)) == USER_INPUT_NO:
         return
 
-    builder = Builder(secret=source_account_seed)
-    builder.add_text_memo(transaction_memo)
-    builder.append_create_account_op(
-        destination=new_account_address,
-        starting_balance=amount,
-        source=source_account_address)
-    response = _sign_and_submit_operation(builder)
-    #process_server_payment_response(response) # TODO: Parse response
+    op = create_account_creation_op(new_account_address, amount, source_account_address)
+    response = submit_operation(source_account_seed, op, transaction_memo)
+    # process_server_payment_response(response) # TODO: Parse response
 
 
 def fund_using_friendbot(account_address):
@@ -103,14 +100,12 @@ def send_payment(source_account_address, source_account_seed, destination_accoun
                        .format(amount, token_code, destination_account_address)) == USER_INPUT_NO:
         return
 
-    builder = Builder(secret=source_account_seed)
-    builder.add_text_memo(transaction_memo)
-    builder.append_payment_op(
-        destination=destination_account_address,
-        amount=amount,
-        asset_issuer=token_issuer,
-        asset_code=token_code)
-    response = _sign_and_submit_operation(builder)
+    op = create_payment_op(destination=destination_account_address,
+                           amount=amount,
+                           asset_code=token_code,
+                           asset_issuer=token_issuer,
+                           source=source_account_address)
+    response = submit_operation(source_account_seed, op, transaction_memo)
     process_server_payment_response(response)
 
 
@@ -157,17 +152,30 @@ def establish_trustline(source_account_address, source_account_seed, destination
         print('The maximum size of the text memo is {} bytes'.format(STELLAR_MEMO_TEXT_MAX_BYTES))
         return
 
-    builder = Builder(secret=source_account_seed)
-    builder.add_text_memo(transaction_memo)
-    builder.append_trust_op(
-        destination=destination_account_address,
-        code=token_code,
-        limit=token_limit)
-    response = _sign_and_submit_operation(builder)
+    op = create_trust_op(destination_account_address, token_code, token_limit, source_account_address)
+    response = submit_operation(source_account_seed, op, transaction_memo)
     process_server_payment_response(response)
 
 
-def _sign_and_submit_operation(builder):
+def submit_operation(account_seed, operation, transaction_memo):
+    """
+    This method signs a given operation and submits it to the Stellar network
+    :param str account_seed: Seed of the account submitting the operation. It is required to sign the transaction.
+    :param Operation operation: Operation to be submitted.
+    :param str transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
+    :return: Returns a string containing the server response or None if the transaction could not be submitted.
+    :rtype: str or None
+    """
+    try:
+        builder = Builder(secret=account_seed)
+    except Exception:
+        # Too broad exception because no specific exception is being thrown by the stellar_base package.
+        # TODO: This should be fixed in future versions
+        print("An error occurred (Please check your Internet connection)")
+        return None
+
+    builder.add_text_memo(transaction_memo)
+    builder.append_op(operation)
     builder.sign()
     try:
         return builder.submit()

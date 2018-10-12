@@ -171,7 +171,8 @@ class GeekStellarCmd(Cmd):
             return
 
         # TODO: Check who should be the issuer! Should it be a input from the user?
-        send_payment(self.session.account_address, seed, destination, token_name, amount, self.session.account_address, memo)
+        send_payment(self.session.account_address, seed, destination, token_name, amount,
+                     self.session.account_address, memo)
 
     def do_send_xlm_payment(self, args):
         """
