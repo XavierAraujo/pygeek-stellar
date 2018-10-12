@@ -112,7 +112,7 @@ def send_payment(source_account_address, source_account_seed, destination_accoun
 def send_path_payment(source_account_address, source_account_seed, destination_address,
                       code_token_to_send, max_amount_to_send, issuer_token_to_send,
                       code_token_to_be_received, amount_to_be_received, issuer_token_to_be_received,
-                      transaction_memo=''):
+                      payment_path, transaction_memo=''):
     if not is_seed_matching_address(source_account_seed, source_account_address):
         print("The path payment could not be finalized. Either the given source account address or source"
               "account seed are invalid or they do not match.")
@@ -122,7 +122,13 @@ def send_path_payment(source_account_address, source_account_seed, destination_a
         print('The given destination address is invalid')
         return
 
-    # TODO: Incomplete
+    op = create_path_payment_op(destination_address,
+                                code_token_to_send, issuer_token_to_send, max_amount_to_send,
+                                code_token_to_be_received, issuer_token_to_be_received, amount_to_be_received,
+                                payment_path, source=source_account_address)
+
+    response = submit_operation(source_account_seed, op, transaction_memo)
+    # TODO: Deal with the response
 
 
 def establish_trustline(source_account_address, source_account_seed, destination_account_address,
