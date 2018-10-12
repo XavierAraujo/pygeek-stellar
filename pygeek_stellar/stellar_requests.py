@@ -42,7 +42,7 @@ def create_new_account(source_account_address, source_account_seed, new_account_
         return
 
     op = create_account_creation_op(new_account_address, amount, source_account_address)
-    response = submit_operation(source_account_seed, op, transaction_memo)
+    response = submit_operations(source_account_seed, op, transaction_memo)
     # process_server_payment_response(response) # TODO: Parse response
 
 
@@ -100,12 +100,12 @@ def send_payment(source_account_address, source_account_seed, destination_accoun
                        .format(amount, token_code, destination_account_address)) == USER_INPUT_NO:
         return
 
-    op = create_payment_op(destination=destination_account_address,
-                           amount=amount,
-                           asset_code=token_code,
-                           asset_issuer=token_issuer,
-                           source=source_account_address)
-    response = submit_operation(source_account_seed, op, transaction_memo)
+    operations = [create_payment_op(destination=destination_account_address,
+                                    amount=amount,
+                                    asset_code=token_code,
+                                    asset_issuer=token_issuer,
+                                    source=source_account_address)]
+    response = submit_operations(source_account_seed, operations, transaction_memo)
     process_server_payment_response(response)
 
 
@@ -122,12 +122,12 @@ def send_path_payment(source_account_address, source_account_seed, destination_a
         print('The given destination address is invalid')
         return
 
-    op = create_path_payment_op(destination_address,
-                                code_token_to_send, issuer_token_to_send, max_amount_to_send,
-                                code_token_to_be_received, issuer_token_to_be_received, amount_to_be_received,
-                                payment_path, source=source_account_address)
+    operations = [create_path_payment_op(destination_address,
+                                         code_token_to_send, issuer_token_to_send, max_amount_to_send,
+                                         code_token_to_be_received, issuer_token_to_be_received, amount_to_be_received,
+                                         payment_path, source=source_account_address)]
 
-    response = submit_operation(source_account_seed, op, transaction_memo)
+    response = submit_operations(source_account_seed, operations, transaction_memo)
     # TODO: Deal with the response
 
 
@@ -158,16 +158,19 @@ def establish_trustline(source_account_address, source_account_seed, destination
         print('The maximum size of the text memo is {} bytes'.format(STELLAR_MEMO_TEXT_MAX_BYTES))
         return
 
-    op = create_trust_op(destination_account_address, token_code, token_limit, source_account_address)
-    response = submit_operation(source_account_seed, op, transaction_memo)
+    operations = [create_trust_op(destination_account_address,
+                                  token_code,
+                                  token_limit,
+                                  source_account_address)]
+    response = submit_operations(source_account_seed, operations, transaction_memo)
     process_server_payment_response(response)
 
 
-def submit_operation(account_seed, operation, transaction_memo):
+def submit_operations(account_seed, operations, transaction_memo):
     """
-    This method signs a given operation and submits it to the Stellar network
-    :param str account_seed: Seed of the account submitting the operation. It is required to sign the transaction.
-    :param Operation operation: Operation to be submitted.
+    This method signs the given operations and submits them to the Stellar network
+    :param str account_seed: Seed of the account submitting the operations. It is required to sign the transactions.
+    :param Operation operations: Operations to be submitted.
     :param str transaction_memo: Text memo to be included in Stellar transaction. Maximum size of 28 bytes.
     :return: Returns a string containing the server response or None if the transaction could not be submitted.
     :rtype: str or None
@@ -181,7 +184,8 @@ def submit_operation(account_seed, operation, transaction_memo):
         return None
 
     builder.add_text_memo(transaction_memo)
-    builder.append_op(operation)
+    for operation in operations:
+        builder.append_op(operation)
     builder.sign()
     try:
         return builder.submit()
