@@ -39,7 +39,11 @@ nosetests -v
 ## Warning
 
 This tool is still in development mode so it is using the Stellar Testnet by default.
-Also the private key of the generated Stellar addresses is being saved in plain text in a configuration file. This is a severe security issue and it should be fixed in the future.
+
+## Security
+
+The used Stellar accounts addresses and correspondent account seeds can be stored in a symmetrically encrypted configuration file. If you do not want to save the account seed on the file, the tool will only ask for it when you want to submit operations that require the private key to the Stellar network.
+This tool uses the Fernet module from the python cryptography package (https://cryptography.io/en/latest/#) to encrypt the configuration file.
 
 ## How to contribute
 Here are some ideas on how you can contribute to this project:

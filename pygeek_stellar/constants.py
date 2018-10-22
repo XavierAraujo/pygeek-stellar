@@ -9,6 +9,7 @@ JSON_ACCOUNTS_TAG = 'accounts'
 JSON_ACCOUNT_NAME_TAG = 'account_name'
 JSON_ACCOUNT_ADDRESS_TAG = 'address'
 JSON_ACCOUNT_SEED_TAG = 'secret_seed'
+CONFIG_FILE_EMPTY_JSON = {JSON_ACCOUNTS_TAG: []}
 
 # Stellar related constants
 STELLAR_HORIZON_TESTNET_URL = 'https://horizon-testnet.stellar.org'

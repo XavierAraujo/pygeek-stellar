@@ -10,12 +10,12 @@ def main():
     """
     print_banner()
 
-    session = cli_session_init()
+    session = init_cli_session()
     if not session:
+        print("No session could be initialized. Exiting..")
         return
 
     cmd = GeekStellarCmd(session)
-    cmd.do_cls(None)
     print_current_session_details(session)
     cmd.do_help(None)
     cmd.cmdloop()

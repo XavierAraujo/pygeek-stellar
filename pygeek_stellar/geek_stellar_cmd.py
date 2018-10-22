@@ -114,7 +114,7 @@ class GeekStellarCmd(Cmd):
             print('The transfer amount to transfer must but a valid value')
             return
 
-        seed = fetch_valid_seed(self.session)
+        seed = self.session.fetch_valid_seed()
         if seed is None:
             print("The donation cannot be done without a valid account seed")
             return
@@ -139,7 +139,7 @@ class GeekStellarCmd(Cmd):
             print('The transfer amount to transfer must but a valid value')
             return
 
-        seed = fetch_valid_seed(self.session)
+        seed = self.session.fetch_valid_seed()
         if seed is None:
             print("The account cannot be created without a valid account seed")
             return
@@ -165,7 +165,7 @@ class GeekStellarCmd(Cmd):
             print('The transfer amount to transfer must but a valid value')
             return
 
-        seed = fetch_valid_seed(self.session)
+        seed = self.session.fetch_valid_seed()
         if seed is None:
             print("The token payment cannot be done without a valid account seed")
             return
@@ -192,7 +192,7 @@ class GeekStellarCmd(Cmd):
             print('The transfer amount to transfer must but a valid value')
             return
 
-        seed = fetch_valid_seed(self.session)
+        seed = self.session.fetch_valid_seed()
         if seed is None:
             print("The payment cannot be done without a valid account seed")
             return
@@ -217,7 +217,7 @@ class GeekStellarCmd(Cmd):
             print('The token limit must but a valid integer value')
             return
 
-        seed = fetch_valid_seed(self.session)
+        seed = self.session.fetch_valid_seed()
         if seed is None:
             print("The trustline cannot be established without a valid account seed")
             return
